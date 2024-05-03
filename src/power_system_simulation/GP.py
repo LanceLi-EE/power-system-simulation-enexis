@@ -20,7 +20,6 @@ class IDNotUniqueError(Exception):
 
 
 
-
 class GraphNotFullyConnectedError(Exception):
     pass
 
@@ -76,10 +75,86 @@ class GraphProcessor:
         if len(edge_ids) != len(set(edge_vertex_id_pairs)):
             raise InputLengthDoesNotMatchError
         
-        if all(any(element in pair for pair in edge_vertex_id_pairs) for element in vertex_ids) == False:
-            raise IDNotFoundError 
-
+        for pair in edge_vertex_id_pairs:
+            for id in pair:
+                if id not in vertex_ids:
+                    raise IDNotFoundError
         
+        if len(edge_enabled) != len(edge_ids):
+            raise InputLengthDoesNotMatchError
+        
+        if source_vertex_id not in vertex_ids:
+            raise IDNotFoundError
+        
+
+        def is_fully_connected(edge_list: List[Tuple[int, int]]) -> bool:
+            # reconstruct graph
+            graph = {}
+            for edge in edge_list:
+                u, v = edge
+                graph.setdefault(u, []).append(v)
+                graph.setdefault(v, []).append(u)
+    
+            # use dfs from the 1st node
+            start_node = next(iter(graph))
+            visited = set()
+            stack = [start_node]
+            visited.add(start_node)
+            while stack:
+                node = stack.pop()
+                for neighbor in graph.get(node, []):
+                    if neighbor not in visited:
+                        stack.append(neighbor)
+                        visited.add(neighbor)
+    
+            # check if fully connected
+            return len(visited) == len(graph)
+
+        def has_cycle(edge_list: List[Tuple[int, int]])-> bool:
+            graph = {}  # 存储图的邻接表表示
+
+            # 构建图的邻接表
+            for edge in edge_list:
+                u, v = edge
+                graph.setdefault(u, []).append(v)
+                graph.setdefault(v, []).append(u)
+
+            visited = set()  # 用于跟踪已经访问过的节点
+            stack = set()    # 用于跟踪当前搜索路径上的节点
+
+            # 深度优先搜索函数
+            def dfs(node, parent):
+                visited.add(node)  # 将当前节点标记为已访问
+                stack.add(node)    # 将当前节点添加到搜索路径中
+
+                # 遍历当前节点的邻居节点
+                for neighbor in graph.get(node, []):
+                    # 如果邻居节点在搜索路径中，并且不是当前节点的父节点，则说明存在环
+                    if neighbor in stack and neighbor != parent:
+                        return True
+                    # 如果邻居节点未访问过，则继续深度优先搜索
+                    elif neighbor not in visited:
+                        if dfs(neighbor, node):
+                            return True
+
+                stack.remove(node)  # 从搜索路径中移除当前节点
+                return False
+
+            # 对每个节点进行深度优先搜索
+            for node in graph:
+                if node not in visited:
+                    if dfs(node, None):
+                        return True  # 如果发现环，则返回 True
+
+            return False  # 如果遍历完所有节点仍未发现环，则返回 False
+
+        if not is_fully_connected(edge_vertex_id_pairs):
+            raise GraphNotFullyConnectedError
+
+        if has_cycle(edge_vertex_id_pairs):
+            raise GraphCycleError
+
+
 
 
     def find_downstream_vertices(self, edge_id: int) -> List[int]:

@@ -111,42 +111,42 @@ class GraphProcessor:
             return len(visited) == len(graph)
 
         def has_cycle(edge_list: List[Tuple[int, int]])-> bool:
-            graph = {}  # 存储图的邻接表表示
+            graph = {}  # adjacent matrix of graph
 
-            # 构建图的邻接表
+            # construct adjacent matrix of graph 
             for edge in edge_list:
                 u, v = edge
                 graph.setdefault(u, []).append(v)
                 graph.setdefault(v, []).append(u)
 
-            visited = set()  # 用于跟踪已经访问过的节点
-            stack = set()    # 用于跟踪当前搜索路径上的节点
+            visited = set()  # to track visited nodes
+            stack = set()    # to track to be visited nodes
 
-            # 深度优先搜索函数
+            # dfs search
             def dfs(node, parent):
-                visited.add(node)  # 将当前节点标记为已访问
-                stack.add(node)    # 将当前节点添加到搜索路径中
+                visited.add(node)  # add present node to visited
+                stack.add(node)    # add node to to be visited
 
-                # 遍历当前节点的邻居节点
+                # check all the neighbor nodes
                 for neighbor in graph.get(node, []):
-                    # 如果邻居节点在搜索路径中，并且不是当前节点的父节点，则说明存在环
+                    
                     if neighbor in stack and neighbor != parent:
                         return True
-                    # 如果邻居节点未访问过，则继续深度优先搜索
+                   
                     elif neighbor not in visited:
                         if dfs(neighbor, node):
                             return True
 
-                stack.remove(node)  # 从搜索路径中移除当前节点
+                stack.remove(node)  
                 return False
 
-            # 对每个节点进行深度优先搜索
+            
             for node in graph:
                 if node not in visited:
                     if dfs(node, None):
-                        return True  # 如果发现环，则返回 True
+                        return True  
 
-            return False  # 如果遍历完所有节点仍未发现环，则返回 False
+            return False  
 
         if not is_fully_connected(edge_vertex_id_pairs):
             raise GraphNotFullyConnectedError

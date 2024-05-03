@@ -46,6 +46,12 @@ class GraphProcessor:
         edge_enabled: List[bool],
         source_vertex_id: int,
     ) -> None:
+        
+        self.vertex_ids = vertex_ids
+        self.edge_ids = edge_ids
+        self.edge_vertex_id_pairs = edge_vertex_id_pairs
+        self.edge_enabled = edge_enabled
+        self.source_vertex_id = source_vertex_id
         """
         Initialize a graph processor object with an undirected graph.
         Only the edges which are enabled are taken into account.
@@ -69,7 +75,52 @@ class GraphProcessor:
             source_vertex_id: vertex id of the source in the graph
         """
         # put your implementation here
-        pass
+        # vertex_ids and edge_ids should be unique. (IDNotUniqueError)
+        # make set of vertex_ids and edge_ids, if the length of the set is not equal to the length of the list, raise IDNotUniqueError
+        if len(set(vertex_ids)) != len(vertex_ids):
+            raise IDNotUniqueError
+        if len(set(edge_ids)) != len(edge_ids):
+            raise IDNotUniqueError
+        
+        #edge_vertex_id_pairs should have the same length as edge_ids. (InputLengthDoesNotMatchError)
+        if len(edge_vertex_id_pairs) != len(edge_ids):
+            raise InputLengthDoesNotMatchError
+        
+        #edge_vertex_id_pairs should contain valid vertex ids. (IDNotFoundError)
+        for pair in edge_vertex_id_pairs:
+            for id in pair:
+                if id not in vertex_ids:
+                    raise IDNotFoundError
+                
+        #edge_enabled should have the same length as edge_ids. (InputLengthDoesNotMatchError)
+        if len(edge_enabled) != len(edge_ids):
+            raise InputLengthDoesNotMatchError
+        
+        #source_vertex_id should be a valid vertex id. (IDNotFoundError)
+        if source_vertex_id not in vertex_ids:
+            raise IDNotFoundError
+        
+        #The graph should be fully connected. (GraphNotFullyConnectedError)
+        #use DFS to iterate through the graph, if cannot find node, graph is not fully connected
+        def dfs(graph, start, visited=None):
+            if visited is None:
+                visited = set()  #initialize visited set
+            visited.add(start)
+            for next in graph[start] - visited:
+                dfs(graph, next, visited)
+            if visited != vertex_ids:
+                raise GraphNotFullyConnectedError     
+        
+        #The graph should not contain cycles. (GraphCycleError)
+        #use DFS to detect cycles in the graph
+        def detect_cycle(graph, start, visited=None):
+            if visited is None:
+                visited = set()  #initialize visited set
+            visited.add(start)
+            for id in graph[start] - visited:
+                if id in visited:
+                    raise GraphCycleError
+                detect_cycle(graph, next, visited)
 
     def find_downstream_vertices(self, edge_id: int) -> List[int]:
         """

@@ -19,6 +19,8 @@ class IDNotUniqueError(Exception):
     pass
 
 
+
+
 class GraphNotFullyConnectedError(Exception):
     pass
 
@@ -68,8 +70,17 @@ class GraphProcessor:
             edge_enabled: list of bools indicating of an edge is enabled or not
             source_vertex_id: vertex id of the source in the graph
         """
-        # put your implementation here
-        pass
+        if  len(vertex_ids) != len(set(vertex_ids))  or  len(edge_ids) != len(set(edge_ids)) :
+            raise IDNotUniqueError
+        
+        if len(edge_ids) != len(set(edge_vertex_id_pairs)):
+            raise InputLengthDoesNotMatchError
+        
+        if all(any(element in pair for pair in edge_vertex_id_pairs) for element in vertex_ids) == False:
+            raise IDNotFoundError 
+
+        
+
 
     def find_downstream_vertices(self, edge_id: int) -> List[int]:
         """

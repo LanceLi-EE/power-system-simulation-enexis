@@ -24,7 +24,9 @@ dev = [
   'isort',
   'pylint',
   'pytest-cov',
-  'networkx'
+  'networkx',
+  'numpy',
+  'scipy'
 ]
 
 # add more dependencies for running the examples

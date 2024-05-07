@@ -3,7 +3,7 @@ This is a skeleton for the graph processing assignment.
 
 We define a graph processor class with some function skeletons.
 """
-
+import numpy as np
 from typing import List, Tuple
 
 

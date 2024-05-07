@@ -13,7 +13,7 @@ G.add_edges_from(edges)
 vertex_ids = list(G.nodes())
 edge_ids = [(u, v, G[u][v]['edge_id']) for u, v in G.edges()]
 edge_vertex_id_pairs = list(G.edges)
-edge_enabled = [1,1,1,1]
+edge_enabled = [1,1,1,0]
 source_vertex_id = 'A'    
 
 

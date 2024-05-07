@@ -3,7 +3,8 @@ This is a skeleton for the graph processing assignment.
 
 We define a graph processor class with some function skeletons.
 """
-import numpy as np
+import networkx as nx
+import scipy.sparse as sp
 from typing import List, Tuple
 
 
@@ -69,6 +70,7 @@ class GraphProcessor:
             edge_enabled: list of bools indicating of an edge is enabled or not
             source_vertex_id: vertex id of the source in the graph
         """
+
         if  len(vertex_ids) != len(set(vertex_ids))  or  len(edge_ids) != len(set(edge_ids)) :
             raise IDNotUniqueError
         
@@ -87,71 +89,17 @@ class GraphProcessor:
             raise IDNotFoundError
         
 
-        def is_fully_connected(edge_list: List[Tuple[int, int]]) -> bool:
-            # reconstruct graph
-            graph = {}
-            for edge in edge_list:
-                u, v = edge
-                graph.setdefault(u, []).append(v)
-                graph.setdefault(v, []).append(u)
-    
-            # use dfs from the 1st node
-            start_node = next(iter(graph))
-            visited = set()
-            stack = [start_node]
-            visited.add(start_node)
-            while stack:
-                node = stack.pop()
-                for neighbor in graph.get(node, []):
-                    if neighbor not in visited:
-                        stack.append(neighbor)
-                        visited.add(neighbor)
-    
-            # check if fully connected
-            return len(visited) == len(graph)
+        self.G = nx.Graph()
+        self.G.add_nodes_from(vertex_ids)
+        for (u, v), enabled in zip(edge_vertex_id_pairs, edge_enabled):
+            if enabled:
+                self.G.add_edge(u, v)
+        
 
-        def has_cycle(edge_list: List[Tuple[int, int]])-> bool:
-            graph = {}  # adjacent matrix of graph
-
-            # construct adjacent matrix of graph 
-            for edge in edge_list:
-                u, v = edge
-                graph.setdefault(u, []).append(v)
-                graph.setdefault(v, []).append(u)
-
-            visited = set()  # to track visited nodes
-            stack = set()    # to track to be visited nodes
-
-            # dfs search
-            def dfs(node, parent):
-                visited.add(node)  # add present node to visited
-                stack.add(node)    # add node to to be visited
-
-                # check all the neighbor nodes
-                for neighbor in graph.get(node, []):
-                    
-                    if neighbor in stack and neighbor != parent:
-                        return True
-                   
-                    elif neighbor not in visited:
-                        if dfs(neighbor, node):
-                            return True
-
-                stack.remove(node)  
-                return False
-
-            
-            for node in graph:
-                if node not in visited:
-                    if dfs(node, None):
-                        return True  
-
-            return False  
-
-        if not is_fully_connected(edge_vertex_id_pairs):
+        if not nx.is_connected(self.G):
             raise GraphNotFullyConnectedError
 
-        if has_cycle(edge_vertex_id_pairs):
+        if nx.cycle_basis(self.G):
             raise GraphCycleError
 
 

@@ -135,19 +135,6 @@ class GraphProcessor:
         """
         # put your implementation here
 
-        def downstream_nodes_from_edge(undirected_graph, source_node, target_edge):
-    
-            dfs_edges = list(nx.dfs_edges(undirected_graph, source=source_node))
-
-            
-            downstream_nodes = set()
-            for (u,v) in dfs_edges:
-                if (u,v) == target_edge or (v,u) == target_edge:
-                    
-                    break
-
-            return downstream_nodes
-
         if edge_id not in self.edge_ids:
             raise IDNotFoundError
 
@@ -157,7 +144,14 @@ class GraphProcessor:
                 if not enabled:
                     return []
                 else:
-                    return list(downstream_nodes_from_edge(self.G, self.source_vertex_id, (u,v)))
+                    G_1 = self.G
+                    G_1.remove_edge(u, v)
+                    for component in nx.connected_components(G_1):
+                        if self.source_vertex_id not in component:
+                            return sorted(component)
+
+        
+
         
 
         

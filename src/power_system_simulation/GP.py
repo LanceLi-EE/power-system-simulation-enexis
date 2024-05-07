@@ -88,7 +88,11 @@ class GraphProcessor:
         if source_vertex_id not in vertex_ids:
             raise IDNotFoundError
         
-
+        self.edge_ids = edge_ids
+        self.edge_vertex_id_pairs = edge_vertex_id_pairs
+        self.edge_enabled = edge_enabled
+        self.source_vertex_id = source_vertex_id
+    
         self.G = nx.Graph()
         self.G.add_nodes_from(vertex_ids)
         for (u, v), enabled in zip(edge_vertex_id_pairs, edge_enabled):
@@ -130,7 +134,36 @@ class GraphProcessor:
             A list of all downstream vertices.
         """
         # put your implementation here
-        pass
+
+        def downstream_nodes_from_edge(undirected_graph, source_node, target_edge):
+    
+            dfs_successors = nx.dfs_successors(undirected_graph, source=source_node)
+
+            # 搜索到目标边后返回其下游的所有节点
+            downstream_nodes = set()
+            for node, successors in dfs_successors.items():
+                if (node, successors[0]) == target_edge or (successors[0], node) == target_edge:
+                    downstream_nodes.update(successors)
+                    break
+
+            return downstream_nodes
+
+        if edge_id not in self.edge_ids:
+            raise IDNotFoundError
+
+        
+        for id, enabled, (u,v) in zip(self.edge_ids, self.edge_enabled, self.edge_vertex_id_pairs):
+            if id == edge_id:
+                if not enabled:
+                    return []
+                else:
+                    return list(downstream_nodes_from_edge(self.G, self.source_vertex_id, (u,v)))
+        
+
+        
+
+
+
 
     def find_alternative_edges(self, disabled_edge_id: int) -> List[int]:
         """

@@ -137,13 +137,13 @@ class GraphProcessor:
 
         def downstream_nodes_from_edge(undirected_graph, source_node, target_edge):
     
-            dfs_successors = nx.dfs_successors(undirected_graph, source=source_node)
+            dfs_edges = list(nx.dfs_edges(undirected_graph, source=source_node))
 
-            # 搜索到目标边后返回其下游的所有节点
+            
             downstream_nodes = set()
-            for node, successors in dfs_successors.items():
-                if (node, successors[0]) == target_edge or (successors[0], node) == target_edge:
-                    downstream_nodes.update(successors)
+            for (u,v) in dfs_edges:
+                if (u,v) == target_edge or (v,u) == target_edge:
+                    
                     break
 
             return downstream_nodes

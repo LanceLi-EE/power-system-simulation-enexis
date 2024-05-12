@@ -5,6 +5,7 @@ We define a graph processor class with some function skeletons.
 """
 import networkx as nx
 import scipy.sparse as sp
+import copy
 from typing import List, Tuple
 
 
@@ -144,7 +145,7 @@ class GraphProcessor:
                 if not enabled:
                     return []
                 else:
-                    G_1 = self.G
+                    G_1 = copy.deepcopy(self.G)
                     G_1.remove_edge(u, v)
                     for component in nx.connected_components(G_1):
                         if self.source_vertex_id not in component:
@@ -194,5 +195,31 @@ class GraphProcessor:
         Returns:
             A list of alternative edge ids.
         """
-        # put your implementation here
-        pass
+        # put your implementation here# Disabled edge is not valid edge id
+        if disabled_edge_id not in self.edge_ids:
+            raise IDNotFoundError
+        
+        # Disabled edge is already disabled
+        G_2 = copy.deepcopy(self.G)
+        for id, enabled, (u,v) in zip(self.edge_ids, self.edge_enabled, self.edge_vertex_id_pairs):
+            if id == disabled_edge_id:
+                if not enabled:
+                    raise EdgeAlreadyDisabledError
+                else:
+                    G_2.remove_edge(u, v) #if the edge is abled just remove it, notice the list edge_enabled is not edited!!
+
+
+        #find alternative
+        alternative = []
+        for id, enabled, (u,v) in zip(self.edge_ids, self.edge_enabled, self.edge_vertex_id_pairs):
+            if not enabled: #check every other disabled edge
+                G_2.add_edge(u, v)  #if it's disabled then able it
+                if nx.is_connected(G_2):  #check if the graph is fully connected or not
+                   alternative.append(id)  #add it to the list
+                   G_2.remove_edge(u, v)   #recover the graph and check next one
+
+        return sorted(alternative)                  
+
+
+
+        

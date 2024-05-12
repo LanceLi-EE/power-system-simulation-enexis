@@ -3,10 +3,11 @@ This is a skeleton for the graph processing assignment.
 
 We define a graph processor class with some function skeletons.
 """
-import networkx as nx
-import scipy.sparse as sp
+
 import copy
 from typing import List, Tuple
+
+import networkx as nx
 
 
 class IDNotFoundError(Exception):
@@ -19,7 +20,6 @@ class InputLengthDoesNotMatchError(Exception):
 
 class IDNotUniqueError(Exception):
     pass
-
 
 
 class GraphNotFullyConnectedError(Exception):
@@ -72,43 +72,39 @@ class GraphProcessor:
             source_vertex_id: vertex id of the source in the graph
         """
 
-        if  len(vertex_ids) != len(set(vertex_ids))  or  len(edge_ids) != len(set(edge_ids)) :
+        if len(vertex_ids) != len(set(vertex_ids)) or len(edge_ids) != len(set(edge_ids)):
             raise IDNotUniqueError
-        
+
         if len(edge_ids) != len(set(edge_vertex_id_pairs)):
             raise InputLengthDoesNotMatchError
-        
+
         for pair in edge_vertex_id_pairs:
-            for id in pair:
-                if id not in vertex_ids:
+            for vertex_id in pair:
+                if vertex_id not in vertex_ids:
                     raise IDNotFoundError
-        
+
         if len(edge_enabled) != len(edge_ids):
             raise InputLengthDoesNotMatchError
-        
+
         if source_vertex_id not in vertex_ids:
             raise IDNotFoundError
-        
+
         self.edge_ids = edge_ids
         self.edge_vertex_id_pairs = edge_vertex_id_pairs
         self.edge_enabled = edge_enabled
         self.source_vertex_id = source_vertex_id
-    
-        self.G = nx.Graph()
-        self.G.add_nodes_from(vertex_ids)
+
+        self.graph = nx.Graph()
+        self.graph.add_nodes_from(vertex_ids)
         for (u, v), enabled in zip(edge_vertex_id_pairs, edge_enabled):
             if enabled:
-                self.G.add_edge(u, v)
-        
+                self.graph.add_edge(u, v)
 
-        if not nx.is_connected(self.G):
+        if not nx.is_connected(self.graph):
             raise GraphNotFullyConnectedError
 
-        if nx.cycle_basis(self.G):
+        if nx.cycle_basis(self.graph):
             raise GraphCycleError
-
-
-
 
     def find_downstream_vertices(self, edge_id: int) -> List[int]:
         """
@@ -139,26 +135,15 @@ class GraphProcessor:
         if edge_id not in self.edge_ids:
             raise IDNotFoundError
 
-        
-        for id, enabled, (u,v) in zip(self.edge_ids, self.edge_enabled, self.edge_vertex_id_pairs):
-            if id == edge_id:
+        for edge, enabled, (u, v) in zip(self.edge_ids, self.edge_enabled, self.edge_vertex_id_pairs):
+            if edge == edge_id:
                 if not enabled:
                     return []
-                else:
-                    G_1 = copy.deepcopy(self.G)
-                    G_1.remove_edge(u, v)
-                    for component in nx.connected_components(G_1):
-                        if self.source_vertex_id not in component:
-                            return sorted(component)
-
-        
-
-        
-
-        
-
-
-
+                g_copy1 = copy.deepcopy(self.graph)
+                g_copy1.remove_edge(u, v)
+                for component in nx.connected_components(g_copy1):
+                    if self.source_vertex_id not in component:
+                        return sorted(component)
 
     def find_alternative_edges(self, disabled_edge_id: int) -> List[int]:
         """
@@ -198,28 +183,22 @@ class GraphProcessor:
         # put your implementation here# Disabled edge is not valid edge id
         if disabled_edge_id not in self.edge_ids:
             raise IDNotFoundError
-        
+
         # Disabled edge is already disabled
-        G_2 = copy.deepcopy(self.G)
-        for id, enabled, (u,v) in zip(self.edge_ids, self.edge_enabled, self.edge_vertex_id_pairs):
-            if id == disabled_edge_id:
+        g_copy2 = copy.deepcopy(self.graph)
+        for edge, enabled, (u, v) in zip(self.edge_ids, self.edge_enabled, self.edge_vertex_id_pairs):
+            if edge == disabled_edge_id:
                 if not enabled:
                     raise EdgeAlreadyDisabledError
-                else:
-                    G_2.remove_edge(u, v) #if the edge is abled just remove it, notice the list edge_enabled is not edited!!
+                g_copy2.remove_edge(u, v)  #if the edge is abled just remove it
 
-
-        #find alternative
+        # find alternative
         alternative = []
-        for id, enabled, (u,v) in zip(self.edge_ids, self.edge_enabled, self.edge_vertex_id_pairs):
-            if not enabled: #check every other disabled edge
-                G_2.add_edge(u, v)  #if it's disabled then able it
-                if nx.is_connected(G_2):  #check if the graph is fully connected or not
-                   alternative.append(id)  #add it to the list
-                   G_2.remove_edge(u, v)   #recover the graph and check next one
+        for edge, enabled, (u, v) in zip(self.edge_ids, self.edge_enabled, self.edge_vertex_id_pairs):
+            if not enabled:  # check every other disabled edge
+                g_copy2.add_edge(u, v)  # if it's disabled then able it
+                if nx.is_connected(g_copy2):  # check if the graph is fully connected or not
+                    alternative.append(edge)  # add it to the list
+                    g_copy2.remove_edge(u, v)  # recover the graph and check next one
 
-        return sorted(alternative)                  
-
-
-
-        
+        return sorted(alternative)

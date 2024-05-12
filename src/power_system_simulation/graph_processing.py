@@ -190,7 +190,7 @@ class GraphProcessor:
             if edge == disabled_edge_id:
                 if not enabled:
                     raise EdgeAlreadyDisabledError
-                g_copy2.remove_edge(u, v)  #if the edge is abled just remove it
+                g_copy2.remove_edge(u, v)  # if the edge is abled just remove it
 
         # find alternative
         alternative = []

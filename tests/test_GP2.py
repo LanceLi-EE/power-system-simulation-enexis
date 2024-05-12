@@ -1,6 +1,9 @@
 import unittest
+
 import networkx as nx
+
 from power_system_simulation.graph_processing import GraphProcessor
+
 
 class TestMyClass(unittest.TestCase):
     def test_ini_case1(self):
@@ -58,7 +61,7 @@ class TestMyClass(unittest.TestCase):
             # 如果引发了异常，记录错误信息
             print("ini_case4() raise custom error:", e.__class__.__name__)
             print("detail:", e)
-    
+
     def test_ini_case5(self):
         vertex_ids = ["A", "B", "C", "D", "E"]
         edge_vertex_id_pairs = [("A", "B"), ("B", "C"), ("C", "D"), ("C", "E"), ("B", "E")]
@@ -72,7 +75,7 @@ class TestMyClass(unittest.TestCase):
             # 如果引发了异常，记录错误信息
             print("ini_case5() raise custom error:", e.__class__.__name__)
             print("detail:", e)
-    
+
     def test_ini_case6(self):
         vertex_ids = ["A", "B", "C", "D", "E"]
         edge_vertex_id_pairs = [("A", "B"), ("B", "C"), ("C", "D"), ("C", "E"), ("B", "E")]
@@ -86,11 +89,11 @@ class TestMyClass(unittest.TestCase):
             # 如果引发了异常，记录错误信息
             print("ini_case6() raise custom error:", e.__class__.__name__)
             print("detail:", e)
-    
+
     def test_ini_case7(self):
         vertex_ids = ["A", "B", "C", "D", "E"]
         edge_vertex_id_pairs = [("A", "B"), ("B", "C"), ("C", "D"), ("C", "E"), ("B", "E")]
-        edge_ids = [1, 2, 3, 4,5]
+        edge_ids = [1, 2, 3, 4, 5]
         edge_enabled = [1, 1, 1, 1, 1]
         source_vertex_id = "A"
         try:
@@ -115,7 +118,7 @@ class TestMyClass(unittest.TestCase):
             # 如果引发了异常，记录错误信息
             print("downstream_case1() raise custom error:", e.__class__.__name__)
             print("detail:", e)
-    
+
     def test_downstream_case2(self):
         vertex_ids = ["A", "B", "C", "D", "E"]
         edge_vertex_id_pairs = [("A", "B"), ("B", "C"), ("C", "D"), ("C", "E"), ("B", "E")]
@@ -130,7 +133,7 @@ class TestMyClass(unittest.TestCase):
             # 如果引发了异常，记录错误信息
             print("downstream_case2() raise custom error:", e.__class__.__name__)
             print("detail:", e)
-    
+
     def test_downstream_case3(self):
         vertex_ids = ["A", "B", "C", "D", "E"]
         edge_vertex_id_pairs = [("A", "B"), ("B", "C"), ("C", "D"), ("C", "E"), ("B", "E")]
@@ -145,7 +148,7 @@ class TestMyClass(unittest.TestCase):
             # 如果引发了异常，记录错误信息
             print("downstream_case3() raise custom error:", e.__class__.__name__)
             print("detail:", e)
-    
+
     def test_alternative_case1(self):
         vertex_ids = ["A", "B", "C", "D", "E"]
         edge_vertex_id_pairs = [("A", "B"), ("B", "C"), ("C", "D"), ("C", "E"), ("B", "E")]
@@ -160,7 +163,7 @@ class TestMyClass(unittest.TestCase):
             # 如果引发了异常，记录错误信息
             print("alternative_case1() raise custom error:", e.__class__.__name__)
             print("detail:", e)
-    
+
     def test_alternative_case2(self):
         vertex_ids = ["A", "B", "C", "D", "E"]
         edge_vertex_id_pairs = [("A", "B"), ("B", "C"), ("C", "D"), ("C", "E"), ("B", "E")]
@@ -175,7 +178,7 @@ class TestMyClass(unittest.TestCase):
             # 如果引发了异常，记录错误信息
             print("alternative_case2() raise custom error:", e.__class__.__name__)
             print("detail:", e)
-    
+
     def test_alternative_case3(self):
         vertex_ids = ["A", "B", "C", "D", "E"]
         edge_vertex_id_pairs = [("A", "B"), ("B", "C"), ("C", "D"), ("C", "E"), ("B", "E")]
@@ -190,7 +193,7 @@ class TestMyClass(unittest.TestCase):
             # 如果引发了异常，记录错误信息
             print("alternative_case3() raise custom error:", e.__class__.__name__)
             print("detail:", e)
-    
+
     def test_alternative_case4(self):
         vertex_ids = ["A", "B", "C", "D", "E"]
         edge_vertex_id_pairs = [("A", "B"), ("B", "C"), ("C", "D"), ("C", "E"), ("B", "E")]
@@ -208,5 +211,6 @@ class TestMyClass(unittest.TestCase):
 
     # 继续编写其他测试方法...
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

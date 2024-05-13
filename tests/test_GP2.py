@@ -13,10 +13,10 @@ class TestMyClass(unittest.TestCase):
         edge_enabled = [1, 1, 1, 1, 0]
         source_vertex_id = "A"
         try:
-            # 调用 method1()，如果引发异常，则捕获异常并记录错误信息
+            # call the class.function, if there is an error then record it
             gp = GraphProcessor(vertex_ids, edge_ids, edge_vertex_id_pairs, edge_enabled, source_vertex_id)
         except Exception as e:
-            # 如果引发了异常，记录错误信息
+            # if there is an error, print the information and continue to next test case
             print("ini_case1() raise custom error:", e.__class__.__name__)
             print("detail:", e)
 
@@ -27,10 +27,8 @@ class TestMyClass(unittest.TestCase):
         edge_enabled = [1, 1, 1, 1, 0]
         source_vertex_id = "A"
         try:
-            # 调用 method1()，如果引发异常，则捕获异常并记录错误信息
             gp = GraphProcessor(vertex_ids, edge_ids, edge_vertex_id_pairs, edge_enabled, source_vertex_id)
         except Exception as e:
-            # 如果引发了异常，记录错误信息
             print("ini_case2() raise custom error:", e.__class__.__name__)
             print("detail:", e)
 
@@ -41,10 +39,8 @@ class TestMyClass(unittest.TestCase):
         edge_enabled = [1, 1, 1, 1, 0]
         source_vertex_id = "A"
         try:
-            # 调用 method1()，如果引发异常，则捕获异常并记录错误信息
             gp = GraphProcessor(vertex_ids, edge_ids, edge_vertex_id_pairs, edge_enabled, source_vertex_id)
         except Exception as e:
-            # 如果引发了异常，记录错误信息
             print("ini_case3() raise custom error:", e.__class__.__name__)
             print("detail:", e)
 
@@ -55,10 +51,8 @@ class TestMyClass(unittest.TestCase):
         edge_enabled = [1, 1, 1, 1]
         source_vertex_id = "A"
         try:
-            # 调用 method1()，如果引发异常，则捕获异常并记录错误信息
             gp = GraphProcessor(vertex_ids, edge_ids, edge_vertex_id_pairs, edge_enabled, source_vertex_id)
         except Exception as e:
-            # 如果引发了异常，记录错误信息
             print("ini_case4() raise custom error:", e.__class__.__name__)
             print("detail:", e)
 
@@ -69,10 +63,8 @@ class TestMyClass(unittest.TestCase):
         edge_enabled = [1, 1, 1, 1, 0]
         source_vertex_id = "X"
         try:
-            # 调用 method1()，如果引发异常，则捕获异常并记录错误信息
             gp = GraphProcessor(vertex_ids, edge_ids, edge_vertex_id_pairs, edge_enabled, source_vertex_id)
         except Exception as e:
-            # 如果引发了异常，记录错误信息
             print("ini_case5() raise custom error:", e.__class__.__name__)
             print("detail:", e)
 
@@ -83,10 +75,8 @@ class TestMyClass(unittest.TestCase):
         edge_enabled = [1, 0, 1, 1, 0]
         source_vertex_id = "A"
         try:
-            # 调用 method1()，如果引发异常，则捕获异常并记录错误信息
             gp = GraphProcessor(vertex_ids, edge_ids, edge_vertex_id_pairs, edge_enabled, source_vertex_id)
         except Exception as e:
-            # 如果引发了异常，记录错误信息
             print("ini_case6() raise custom error:", e.__class__.__name__)
             print("detail:", e)
 
@@ -97,10 +87,8 @@ class TestMyClass(unittest.TestCase):
         edge_enabled = [1, 1, 1, 1, 1]
         source_vertex_id = "A"
         try:
-            # 调用 method1()，如果引发异常，则捕获异常并记录错误信息
             gp = GraphProcessor(vertex_ids, edge_ids, edge_vertex_id_pairs, edge_enabled, source_vertex_id)
         except Exception as e:
-            # 如果引发了异常，记录错误信息
             print("ini_case7() raise custom error:", e.__class__.__name__)
             print("detail:", e)
 
@@ -112,10 +100,8 @@ class TestMyClass(unittest.TestCase):
         source_vertex_id = "A"
         gp = GraphProcessor(vertex_ids, edge_ids, edge_vertex_id_pairs, edge_enabled, source_vertex_id)
         try:
-            # 调用 method1()，如果引发异常，则捕获异常并记录错误信息
             print(gp.find_downstream_vertices(6))
         except Exception as e:
-            # 如果引发了异常，记录错误信息
             print("downstream_case1() raise custom error:", e.__class__.__name__)
             print("detail:", e)
 
@@ -127,10 +113,8 @@ class TestMyClass(unittest.TestCase):
         source_vertex_id = "A"
         gp = GraphProcessor(vertex_ids, edge_ids, edge_vertex_id_pairs, edge_enabled, source_vertex_id)
         try:
-            # 调用 method1()，如果引发异常，则捕获异常并记录错误信息
             print("downstream_case2() return:", gp.find_downstream_vertices(5))
         except Exception as e:
-            # 如果引发了异常，记录错误信息
             print("downstream_case2() raise custom error:", e.__class__.__name__)
             print("detail:", e)
 
@@ -142,10 +126,8 @@ class TestMyClass(unittest.TestCase):
         source_vertex_id = "A"
         gp = GraphProcessor(vertex_ids, edge_ids, edge_vertex_id_pairs, edge_enabled, source_vertex_id)
         try:
-            # 调用 method1()，如果引发异常，则捕获异常并记录错误信息
             print("downstream_case3() return:", gp.find_downstream_vertices(3))
         except Exception as e:
-            # 如果引发了异常，记录错误信息
             print("downstream_case3() raise custom error:", e.__class__.__name__)
             print("detail:", e)
 
@@ -157,10 +139,8 @@ class TestMyClass(unittest.TestCase):
         source_vertex_id = "A"
         gp = GraphProcessor(vertex_ids, edge_ids, edge_vertex_id_pairs, edge_enabled, source_vertex_id)
         try:
-            # 调用 method1()，如果引发异常，则捕获异常并记录错误信息
             print("alternative_case1() return:", gp.find_alternative_edges(6))
         except Exception as e:
-            # 如果引发了异常，记录错误信息
             print("alternative_case1() raise custom error:", e.__class__.__name__)
             print("detail:", e)
 
@@ -172,10 +152,8 @@ class TestMyClass(unittest.TestCase):
         source_vertex_id = "A"
         gp = GraphProcessor(vertex_ids, edge_ids, edge_vertex_id_pairs, edge_enabled, source_vertex_id)
         try:
-            # 调用 method1()，如果引发异常，则捕获异常并记录错误信息
             print("alternative_case2() return:", gp.find_alternative_edges(5))
         except Exception as e:
-            # 如果引发了异常，记录错误信息
             print("alternative_case2() raise custom error:", e.__class__.__name__)
             print("detail:", e)
 
@@ -187,10 +165,8 @@ class TestMyClass(unittest.TestCase):
         source_vertex_id = "A"
         gp = GraphProcessor(vertex_ids, edge_ids, edge_vertex_id_pairs, edge_enabled, source_vertex_id)
         try:
-            # 调用 method1()，如果引发异常，则捕获异常并记录错误信息
             print("alternative_case3() return:", gp.find_alternative_edges(1))
         except Exception as e:
-            # 如果引发了异常，记录错误信息
             print("alternative_case3() raise custom error:", e.__class__.__name__)
             print("detail:", e)
 
@@ -202,14 +178,12 @@ class TestMyClass(unittest.TestCase):
         source_vertex_id = "A"
         gp = GraphProcessor(vertex_ids, edge_ids, edge_vertex_id_pairs, edge_enabled, source_vertex_id)
         try:
-            # 调用 method1()，如果引发异常，则捕获异常并记录错误信息
             print("alternative_case4() return:", gp.find_alternative_edges(2))
         except Exception as e:
-            # 如果引发了异常，记录错误信息
             print("alternative_case4() raise custom error:", e.__class__.__name__)
             print("detail:", e)
 
-    # 继续编写其他测试方法...
+    # add new cases here with the same structure
 
 
 if __name__ == "__main__":

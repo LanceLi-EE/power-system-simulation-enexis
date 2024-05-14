@@ -4,10 +4,7 @@ This is a skeleton for the graph processing assignment.
 We define a graph processor class with some function skeletons.
 """
 
-import copy
 from typing import List, Tuple
-
-import networkx as nx
 
 
 class IDNotFoundError(Exception):
@@ -49,6 +46,12 @@ class GraphProcessor:
         edge_enabled: List[bool],
         source_vertex_id: int,
     ) -> None:
+        
+        self.vertex_ids = vertex_ids
+        self.edge_ids = edge_ids
+        self.edge_vertex_id_pairs = edge_vertex_id_pairs
+        self.edge_enabled = edge_enabled
+        self.source_vertex_id = source_vertex_id
         """
         Initialize a graph processor object with an undirected graph.
         Only the edges which are enabled are taken into account.
@@ -71,40 +74,53 @@ class GraphProcessor:
             edge_enabled: list of bools indicating of an edge is enabled or not
             source_vertex_id: vertex id of the source in the graph
         """
-
-        if len(vertex_ids) != len(set(vertex_ids)) or len(edge_ids) != len(set(edge_ids)):
+        # put your implementation here
+        # vertex_ids and edge_ids should be unique. (IDNotUniqueError)
+        # make set of vertex_ids and edge_ids, if the length of the set is not equal to the length of the list, raise IDNotUniqueError
+        if len(set(vertex_ids)) != len(vertex_ids):
             raise IDNotUniqueError
-
-        if len(edge_ids) != len(set(edge_vertex_id_pairs)):
+        if len(set(edge_ids)) != len(edge_ids):
+            raise IDNotUniqueError
+        
+        #edge_vertex_id_pairs should have the same length as edge_ids. (InputLengthDoesNotMatchError)
+        if len(edge_vertex_id_pairs) != len(edge_ids):
             raise InputLengthDoesNotMatchError
-
+        
+        #edge_vertex_id_pairs should contain valid vertex ids. (IDNotFoundError)
         for pair in edge_vertex_id_pairs:
-            for vertex_id in pair:
-                if vertex_id not in vertex_ids:
+            for id in pair:
+                if id not in vertex_ids:
                     raise IDNotFoundError
-
+                
+        #edge_enabled should have the same length as edge_ids. (InputLengthDoesNotMatchError)
         if len(edge_enabled) != len(edge_ids):
             raise InputLengthDoesNotMatchError
-
+        
+        #source_vertex_id should be a valid vertex id. (IDNotFoundError)
         if source_vertex_id not in vertex_ids:
             raise IDNotFoundError
-
-        self.edge_ids = edge_ids
-        self.edge_vertex_id_pairs = edge_vertex_id_pairs
-        self.edge_enabled = edge_enabled
-        self.source_vertex_id = source_vertex_id
-
-        self.graph = nx.Graph()
-        self.graph.add_nodes_from(vertex_ids)
-        for (u, v), enabled in zip(edge_vertex_id_pairs, edge_enabled):
-            if enabled:
-                self.graph.add_edge(u, v)
-
-        if not nx.is_connected(self.graph):
-            raise GraphNotFullyConnectedError
-
-        if nx.cycle_basis(self.graph):
-            raise GraphCycleError
+        
+        #The graph should be fully connected. (GraphNotFullyConnectedError)
+        #use DFS to iterate through the graph, if cannot find node, graph is not fully connected
+        def dfs(graph, start, visited=None):
+            if visited is None:
+                visited = set()  #initialize visited set
+            visited.add(start)
+            for next in graph[start] - visited:
+                dfs(graph, next, visited)
+            if visited != vertex_ids:
+                raise GraphNotFullyConnectedError     
+        
+        #The graph should not contain cycles. (GraphCycleError)
+        #use DFS to detect cycles in the graph
+        def detect_cycle(graph, start, visited=None):
+            if visited is None:
+                visited = set()  #initialize visited set
+            visited.add(start)
+            for id in graph[start] - visited:
+                if id in visited:
+                    raise GraphCycleError
+                detect_cycle(graph, next, visited)
 
     def find_downstream_vertices(self, edge_id: int) -> List[int]:
         """
@@ -131,19 +147,7 @@ class GraphProcessor:
             A list of all downstream vertices.
         """
         # put your implementation here
-
-        if edge_id not in self.edge_ids:
-            raise IDNotFoundError
-
-        for edge, enabled, (u, v) in zip(self.edge_ids, self.edge_enabled, self.edge_vertex_id_pairs):
-            if edge == edge_id:
-                if not enabled:
-                    return []
-                g_copy1 = copy.deepcopy(self.graph)
-                g_copy1.remove_edge(u, v)
-                for component in nx.connected_components(g_copy1):
-                    if self.source_vertex_id not in component:
-                        return sorted(component)
+        pass
 
     def find_alternative_edges(self, disabled_edge_id: int) -> List[int]:
         """
@@ -180,25 +184,5 @@ class GraphProcessor:
         Returns:
             A list of alternative edge ids.
         """
-        # put your implementation here# Disabled edge is not valid edge id
-        if disabled_edge_id not in self.edge_ids:
-            raise IDNotFoundError
-
-        # Disabled edge is already disabled
-        g_copy2 = copy.deepcopy(self.graph)
-        for edge, enabled, (u, v) in zip(self.edge_ids, self.edge_enabled, self.edge_vertex_id_pairs):
-            if edge == disabled_edge_id:
-                if not enabled:
-                    raise EdgeAlreadyDisabledError
-                g_copy2.remove_edge(u, v)  # if the edge is abled just remove it
-
-        # find alternative
-        alternative = []
-        for edge, enabled, (u, v) in zip(self.edge_ids, self.edge_enabled, self.edge_vertex_id_pairs):
-            if not enabled:  # check every other disabled edge
-                g_copy2.add_edge(u, v)  # if it's disabled then able it
-                if nx.is_connected(g_copy2):  # check if the graph is fully connected or not
-                    alternative.append(edge)  # add it to the list
-                    g_copy2.remove_edge(u, v)  # recover the graph and check next one
-
-        return sorted(alternative)
+        # put your implementation here
+        pass

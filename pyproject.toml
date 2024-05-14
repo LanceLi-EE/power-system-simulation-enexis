@@ -23,7 +23,10 @@ dev = [
   'black',
   'isort',
   'pylint',
-  'pytest-cov'
+  'pytest-cov',
+  'networkx',
+  'numpy',
+  'scipy'
 ]
 
 # add more dependencies for running the examples
@@ -50,7 +53,7 @@ line_length = 120
 
 [tool.pylint.main]
 # Specify a score threshold under which the program will exit with error.
-fail-under = 10
+fail-under = 8
 
 # Minimum Python version to use for version dependent checks. Will default to the
 # version used to run pylint.

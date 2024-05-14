@@ -104,6 +104,7 @@ class TestMyClass(unittest.TestCase):
         except Exception as e:
             print("downstream_case1() raise custom error:", e.__class__.__name__)
             print("detail:", e)
+            # test
 
     def test_downstream_case2(self):
         vertex_ids = ["A", "B", "C", "D", "E"]

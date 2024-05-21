@@ -59,7 +59,6 @@ class GraphProcessor:
         source_vertex_id: int,
     ) -> None:
 
-
         self.edge_ids = edge_ids
         self.edge_vertex_id_pairs = edge_vertex_id_pairs
         self.edge_enabled = edge_enabled

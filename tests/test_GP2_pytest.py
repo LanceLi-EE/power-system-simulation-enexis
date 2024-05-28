@@ -1,12 +1,13 @@
 import pytest
+
 from power_system_simulation.graph_processing import (
+    EdgeAlreadyDisabledError,
+    GraphCycleError,
+    GraphNotFullyConnectedError,
     GraphProcessor,
+    IDNotFoundError,
     IDNotUniqueError,
     InputLengthDoesNotMatchError,
-    IDNotFoundError,
-    GraphNotFullyConnectedError,
-    GraphCycleError,
-    EdgeAlreadyDisabledError,
 )
 
 

@@ -1,25 +1,28 @@
 """
-This module performs power grid calculations using power flow models.
+Module for performing power grid calculations using power flow models.
+
+Classes:
+    PowerGridCalculation: Main class to handle power grid calculations.
+
+Exceptions:
+    TwoProfilesDoesNotHaveMatchingTimestampsOrLoadIds: Custom exception for mismatched load profiles.
 """
 
-import json
 import pprint
 import warnings
 import numpy as np
 import pandas as pd
-from pandas import DataFrame
 from power_grid_model import CalculationMethod, CalculationType, PowerGridModel, initialize_array
-from power_grid_model.utils import json_deserialize, json_serialize
+from power_grid_model.utils import json_deserialize
 from power_grid_model.validation import assert_valid_batch_data, assert_valid_input_data
 
 with warnings.catch_warnings(action="ignore", category=DeprecationWarning):
     # Suppress warning about pyarrow as a future required dependency
-    from pandas import DataFrame
+    pass
 
 
 class TwoProfilesDoesNotHaveMatchingTimestampsOrLoadIds(Exception):
     """Exception raised when two load profiles do not have matching timestamps or load IDs."""
-    pass
 
 
 class PowerGridCalculation:
@@ -27,9 +30,11 @@ class PowerGridCalculation:
 
     def __init__(self) -> None:
         """Initialize the PowerGridCalculation class."""
-        pass
+        self.dataset = None
+        self.update_data = None
+        self.output_data = None
 
-    def construct_PGM(self, data_path: str):
+    def construct_pgm(self, data_path: str):
         """
         Construct the Power Grid Model (PGM) from the provided JSON data.
 
@@ -39,14 +44,14 @@ class PowerGridCalculation:
         Returns:
             dict: Deserialized dataset.
         """
-        with open(data_path) as fp:
+        with open(data_path, encoding='utf-8') as fp:
             data = fp.read()
 
         self.dataset = json_deserialize(data)
         assert_valid_input_data(input_data=self.dataset, calculation_type=CalculationType.power_flow)
         return self.dataset
 
-    def creat_batch_update_dataset(self, data_path1: str, data_path2: str):
+    def create_batch_update_dataset(self, data_path1: str, data_path2: str):
         """
         Create a batch update dataset from two load profiles.
 
@@ -123,4 +128,3 @@ class PowerGridCalculation:
             ],
         )
         return voltage_df
-    

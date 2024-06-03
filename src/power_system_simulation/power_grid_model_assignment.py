@@ -10,6 +10,7 @@ Exceptions:
 
 import pprint
 import warnings
+
 import numpy as np
 import pandas as pd
 from power_grid_model import CalculationMethod, CalculationType, PowerGridModel, initialize_array
@@ -44,7 +45,7 @@ class PowerGridCalculation:
         Returns:
             dict: Deserialized dataset.
         """
-        with open(data_path, encoding='utf-8') as fp:
+        with open(data_path, encoding="utf-8") as fp:
             data = fp.read()
 
         self.dataset = json_deserialize(data)

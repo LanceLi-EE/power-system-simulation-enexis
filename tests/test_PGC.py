@@ -5,6 +5,8 @@ import warnings
 import numpy as np
 import pandas as pd
 
+from pathlib import Path
+
 with warnings.catch_warnings(action="ignore", category=DeprecationWarning):
     # suppress warning about pyarrow as future required dependency
     from pandas import DataFrame
@@ -29,14 +31,15 @@ from power_system_simulation.power_grid_calculation import power_grid_calculatio
 class TestMyClass(unittest.TestCase):
     def test_ini_case1(self):
         pgc = power_grid_calculation()
-        path0 = "data/input/input_network_data.json"
-        path1 = "data/input/active_power_profile.parquet"
-        path2 = "data/input/reactive_power_profile.parquet"
+
+        path0 = "tests/data/input/input_network_data.json"
+        path1 = "tests/data/input/active_power_profile.parquet"
+        path2 = "tests/data/input/reactive_power_profile.parquet"
         try:
             # call the class.function, if there is an error then record it
             PGM = pgc.construct_PGM(path0)
             update_dataset = pgc.creat_batch_update_dataset(path1,path2)
-            
+            pgc.time_series_power_flow_calculation()
 
         except Exception as e:
             # if there is an error, print the information and continue to next test case

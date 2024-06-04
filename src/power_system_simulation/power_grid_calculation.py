@@ -2,7 +2,8 @@ import json
 import pprint
 import warnings
 import numpy as np
-import pandas as pd
+import pandas as pd 
+from pathlib import Path
 
 with warnings.catch_warnings(action="ignore", category=DeprecationWarning):
     # suppress warning about pyarrow as future required dependency
@@ -33,7 +34,7 @@ class power_grid_calculation:
     def construct_PGM(self, data_path: str):
         with open(data_path) as fp:
             data = fp.read()
-
+        
         self.dataset = json_deserialize(data)
         assert_valid_input_data(input_data=self.dataset, calculation_type=CalculationType.power_flow)
         return self.dataset
@@ -56,27 +57,28 @@ class power_grid_calculation:
         load_profile["q_specified"] = df_load_profile2.to_numpy()
 
         self.update_data = {"sym_load": load_profile}
-
+        
         return self.update_data
     
     def time_series_power_flow_calculation(self):
         assert_valid_batch_data(input_data=self.dataset, update_data=self.update_data, calculation_type=CalculationType.power_flow)
         model = PowerGridModel(input_data=self.dataset)
         output_data = model.calculate_power_flow(update_data=self.update_data, calculation_method=CalculationMethod.newton_raphson)
-        timestamps = self.update_data["sym_load"]["p_specified"].index
-        
-        #table for voltages
-        voltage_data = []
-        for timestamp in timestamps:
-            voltage = output_data["voltage"][timestamp]
-            max_voltage = np.max(voltage)
-            max_voltage_node = np.argmax(voltage)
-            min_voltage = np.min(voltage)
-            min_voltage_node = np.argmin(voltage)
-            voltage_data.append([timestamp, max_voltage, max_voltage_node, min_voltage, min_voltage_node])
+        #timestamps = self.update_data["sym_load"]["p_specified"].index
+        print(output_data)
 
-        voltage_df = pd.DataFrame(voltage_data, columns=["Timestamp", "Maximum p.u voltage", "Node ID with Maximum p.u voltage", "Minimum p.u voltage", "Node ID with Minimum p.u voltage"])
-    
+        #table for voltages
+        #voltage_data = []
+        #for timestamp in timestamps:
+            #voltage = output_data["voltage"][timestamp]
+            #max_voltage = np.max(voltage)
+            #max_voltage_node = np.argmax(voltage)
+            #min_voltage = np.min(voltage)
+            #min_voltage_node = np.argmin(voltage)
+            #voltage_data.append([timestamp, max_voltage, max_voltage_node, min_voltage, min_voltage_node])
+
+        #voltage_df = pd.DataFrame(voltage_data, columns=["Timestamp", "Maximum p.u voltage", "Node ID with Maximum p.u voltage", "Minimum p.u voltage", "Node ID with Minimum p.u voltage"])
+        #print(voltage_df)
 
 
 

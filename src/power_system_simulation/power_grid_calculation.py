@@ -67,19 +67,33 @@ class power_grid_calculation:
         output_data = model.calculate_power_flow(update_data=self.update_data, calculation_method=CalculationMethod.newton_raphson)
 
         #table for voltages
-        test = output_data["node"]["u"][:,0]
-        print(test)
+        table1 = pd.DataFrame()
+        table1['Timestamp'] = self.timestamp
+        table1.set_index('Timestamp')
+        table1['max_id'] = 0
+        table1['max_pu'] = 0.0
+        table1['min_id'] = 0
+        table1['min_pu'] = 0.0
+        i = 0
         for node_scenario in output_data["node"]:
-            print(node_scenario['u'])
-            #voltage = output_data["voltage"][timestamp]
-            #max_voltage = np.max(voltage)
-            #max_voltage_node = np.argmax(voltage)
-            #min_voltage = np.min(voltage)
-            #min_voltage_node = np.argmin(voltage)
-            #voltage_data.append([timestamp, max_voltage, max_voltage_node, min_voltage, min_voltage_node])
+            df = pd.DataFrame(node_scenario)
+            max = df["u_pu"].idxmax()
+            min = df["u_pu"].idxmin()
+            max_value_id = df.at[max, 'id']
+            min_value_id = df.at[min, 'id']
+            max_value_pu = df.at[max, 'u_pu']
+            min_value_pu = df.at[min, 'u_pu']
 
-        #voltage_df = pd.DataFrame(voltage_data, columns=["Timestamp", "Maximum p.u voltage", "Node ID with Maximum p.u voltage", "Minimum p.u voltage", "Node ID with Minimum p.u voltage"])
-        #print(voltage_df)
+            table1.loc[i, 'max_id'] = max_value_id
+            table1.loc[i, 'max_pu'] = max_value_pu
+            table1.loc[i, 'min_id'] = min_value_id
+            table1.loc[i, 'min_pu'] = min_value_pu
+            i = i + 1
+
+        print(table1)
+
+
+        
 
 
 

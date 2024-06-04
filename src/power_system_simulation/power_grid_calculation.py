@@ -48,6 +48,7 @@ class power_grid_calculation:
         if not np.all(df_load_profile1.index == df_load_profile2.index):
             raise TwoProfilesDoesNotHaveMatchingTimestampsOrLoadIds
 
+        self.timestamp = df_load_profile1.index
 
         load_profile = initialize_array("update", "sym_load", df_load_profile1.shape)
 
@@ -64,12 +65,12 @@ class power_grid_calculation:
         assert_valid_batch_data(input_data=self.dataset, update_data=self.update_data, calculation_type=CalculationType.power_flow)
         model = PowerGridModel(input_data=self.dataset)
         output_data = model.calculate_power_flow(update_data=self.update_data, calculation_method=CalculationMethod.newton_raphson)
-        #timestamps = self.update_data["sym_load"]["p_specified"].index
-        print(output_data)
 
         #table for voltages
-        #voltage_data = []
-        #for timestamp in timestamps:
+        test = output_data["node"]["u"][:,0]
+        print(test)
+        for node_scenario in output_data["node"]:
+            print(node_scenario['u'])
             #voltage = output_data["voltage"][timestamp]
             #max_voltage = np.max(voltage)
             #max_voltage_node = np.argmax(voltage)

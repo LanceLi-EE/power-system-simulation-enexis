@@ -4,6 +4,8 @@ import warnings
 import numpy as np
 import pandas as pd 
 from pathlib import Path
+from datetime import datetime
+from scipy import integrate
 
 with warnings.catch_warnings(action="ignore", category=DeprecationWarning):
     # suppress warning about pyarrow as future required dependency
@@ -65,7 +67,6 @@ class power_grid_calculation:
         assert_valid_batch_data(input_data=self.dataset, update_data=self.update_data, calculation_type=CalculationType.power_flow)
         model = PowerGridModel(input_data=self.dataset)
         output_data = model.calculate_power_flow(update_data=self.update_data, calculation_method=CalculationMethod.newton_raphson)
-
         #table for voltages
         table1 = pd.DataFrame()
         table1['Timestamp'] = self.timestamp
@@ -90,8 +91,47 @@ class power_grid_calculation:
             table1.loc[i, 'min_pu'] = min_value_pu
             i = i + 1
 
-        print(table1)
 
+        
+        table2 = pd.DataFrame()
+        table2['Line_ID'] = output_data['line']['id'][0]
+        table2.set_index('Line_ID')
+        table2['max_time'] = datetime.fromtimestamp(0)
+        table2['max__loading_pu'] = 0.0
+        table2['min_time'] = datetime.fromtimestamp(0)
+        table2['min_loading_pu'] = 0.0
+        table2['energy_loss_kw'] = 0.0
+
+        
+        df_temp = pd.DataFrame()
+        df_temp = pd.DataFrame(output_data['line']['loading'])
+        df_temp['Timestamp'] = self.timestamp
+        i=0
+        for column_name, column_data in df_temp.iloc[:, :-1].items():
+            table2.loc[i, 'max__loading_pu'] = column_data.max()
+            table2.loc[i, 'max_time'] = df_temp['Timestamp'][column_data.idxmax()]
+            table2.loc[i, 'min_loading_pu'] = column_data.min()
+            table2.loc[i, 'min_time'] = df_temp['Timestamp'][column_data.idxmin()]
+            i = i+1
+
+
+        
+        p_loss = pd.DataFrame()
+        p_loss = abs(abs(pd.DataFrame(output_data['line']['p_from'])) - abs(pd.DataFrame(output_data['line']['p_to'])))
+        i = 0
+        for column_name, column_data in p_loss.items():
+            table2.loc[i, 'energy_loss_kw'] = integrate.trapezoid(column_data.to_list()) / 1000
+            i = i+1
+        
+        
+        print(table1)
+        print(table2)
+
+
+
+        
+
+        
 
         
 

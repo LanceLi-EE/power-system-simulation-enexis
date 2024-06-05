@@ -39,8 +39,9 @@ class TestMyClass(unittest.TestCase):
             # call the class.function, if there is an error then record it
             PGM = pgc.construct_PGM(path0)
             update_dataset = pgc.creat_batch_update_dataset(path1,path2)
-            pgc.time_series_power_flow_calculation()
-
+            tables = pgc.time_series_power_flow_calculation()
+            print(tables)
+            
         except Exception as e:
             # if there is an error, print the information and continue to next test case
             print("ini_case1() raise custom error:", e.__class__.__name__)

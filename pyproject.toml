@@ -26,7 +26,8 @@ dev = [
   'pytest-cov',
   'networkx',
   'numpy',
-  'scipy'
+  'scipy',
+  'pandas'
 ]
 
 # add more dependencies for running the examples

@@ -1,32 +1,19 @@
 import unittest
-import json
-import pprint
 import warnings
+
 import numpy as np
 import pandas as pd
-
-from pathlib import Path
 
 with warnings.catch_warnings(action="ignore", category=DeprecationWarning):
     # suppress warning about pyarrow as future required dependency
     from pandas import DataFrame
 
-from power_grid_model import (
-    PowerGridModel,
-    CalculationType,
-    CalculationMethod,
-    initialize_array
-)
-
-from power_grid_model.validation import (
-    assert_valid_input_data,
-    assert_valid_batch_data
-)
-
+from power_grid_model import CalculationMethod, CalculationType, PowerGridModel, initialize_array
 from power_grid_model.utils import json_deserialize, json_serialize
-
+from power_grid_model.validation import assert_valid_batch_data, assert_valid_input_data
 
 from power_system_simulation.power_grid_calculation import power_grid_calculation
+
 
 class TestMyClass(unittest.TestCase):
     def test_ini_case1(self):
@@ -38,10 +25,10 @@ class TestMyClass(unittest.TestCase):
         try:
             # call the class.function, if there is an error then record it
             PGM = pgc.construct_PGM(path0)
-            update_dataset = pgc.creat_batch_update_dataset(path1,path2)
+            update_dataset = pgc.creat_batch_update_dataset(path1, path2)
             tables = pgc.time_series_power_flow_calculation()
             print(tables)
-            
+
         except Exception as e:
             # if there is an error, print the information and continue to next test case
             print("ini_case1() raise custom error:", e.__class__.__name__)

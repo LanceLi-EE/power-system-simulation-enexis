@@ -15,30 +15,36 @@ class IDNotFoundError(Exception):
     error
     """
 
+
 class InputLengthDoesNotMatchError(Exception):
     """
     error
     """
+
 
 class IDNotUniqueError(Exception):
     """
     error
     """
 
+
 class GraphNotFullyConnectedError(Exception):
     """
     error
     """
+
 
 class GraphCycleError(Exception):
     """
     error
     """
 
+
 class EdgeAlreadyDisabledError(Exception):
     """
     error
     """
+
 
 class GraphProcessor:
     """

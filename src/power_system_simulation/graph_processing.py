@@ -11,27 +11,39 @@ import networkx as nx
 
 
 class IDNotFoundError(Exception):
-    pass
+    """
+    error
+    """
 
 
 class InputLengthDoesNotMatchError(Exception):
-    pass
+    """
+    error
+    """
 
 
 class IDNotUniqueError(Exception):
-    pass
+    """
+    error
+    """
 
 
 class GraphNotFullyConnectedError(Exception):
-    pass
+    """
+    error
+    """
 
 
 class GraphCycleError(Exception):
-    pass
+    """
+    error
+    """
 
 
 class EdgeAlreadyDisabledError(Exception):
-    pass
+    """
+    error
+    """
 
 
 class GraphProcessor:

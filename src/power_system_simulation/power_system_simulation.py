@@ -124,11 +124,4 @@ class N1_calculation:
          print(self.gp.find_alternative_edges(id))
         
 
-        
-
-
-
-
-
-
-        # push to my branch
+    

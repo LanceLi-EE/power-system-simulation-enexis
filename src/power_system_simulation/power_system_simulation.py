@@ -85,3 +85,6 @@ class input_data_validity_check:
     def check_EV_charging_profiles(self):
         if len(self.df3.columns) < len(self.grid['sym_load']):
             raise NotEnoughEVChargingProfiles
+
+class EV_penetration_level:
+    pass

@@ -14,7 +14,7 @@ classifiers = [
 ]
 requires-python = ">=3.12"
 # add dependencies of your core package, check the license first!
-dependencies = []
+dependencies = ['networkx', 'power-grid-model', 'pyarrow', 'pandas', 'scipy', 'numpy']
 version = "0.1"
 
 [project.optional-dependencies]
@@ -23,10 +23,7 @@ dev = [
   'black',
   'isort',
   'pylint',
-  'pytest-cov',
-  'networkx',
-  'numpy',
-  'scipy'
+  'pytest-cov'
 ]
 
 # add more dependencies for running the examples

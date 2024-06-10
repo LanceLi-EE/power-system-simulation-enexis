@@ -5,6 +5,7 @@ import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
 import pyarrow.parquet as pq
+from datetime import datetime
 
 with warnings.catch_warnings(action="ignore", category=DeprecationWarning):
     # suppress warning about pyarrow as future required dependency
@@ -14,6 +15,13 @@ from power_system_simulation.power_grid_calculation import PowerGridCalculation
 from power_system_simulation.graph_processing import GraphProcessor
 
 from power_grid_model.utils import json_deserialize
+
+from power_grid_model import (
+    PowerGridModel,
+    CalculationType,
+    CalculationMethod,
+    initialize_array
+)
 
 #Input data validity check
 class MoreThanOneTransformerOrSource(Exception):
@@ -100,11 +108,12 @@ class Optimal_tap_position:
     pass
 
 class N1_calculation:
-    def __init__(self, network_data: str, meta_data: str):
+    def __init__(self, network_data: str, meta_data: str, active_load_profile: str , reactive_load_profile: str):
         with open(meta_data, 'r' ) as file:
             self.meta = json.load(file)
         self.pgc = PowerGridCalculation()
         self.grid = self.pgc.construct_PGM(network_data)
+        self.update_data = self.pgc.creat_batch_update_dataset(active_load_profile, reactive_load_profile)
         vertex_ids = self.grid['node']['id'].tolist()
         edge_vertex_id_pairs = list(zip(self.grid['line']['from_node'], self.grid['line']['to_node']))
         edge_vertex_id_pairs.append((self.grid['transformer']['from_node'][0], self.grid['transformer']['to_node'][0]))
@@ -114,14 +123,31 @@ class N1_calculation:
         edge_enabled.append(1)
         source_vertex_id = self.meta['mv_source_node']
         self.gp = GraphProcessor(vertex_ids, edge_ids, edge_vertex_id_pairs, edge_enabled, source_vertex_id)
-        self.G = self.gp.create()
-        nx.draw(self.G, with_labels=True)
-        plt.show()
+        #self.G = self.gp.create()
+        #nx.draw(self.G, with_labels=True)
+        #plt.show()
         #print(edge_ids)
 
-    def N1(self):
-        for id in self.grid['line']['id']:
-         print(self.gp.find_alternative_edges(id))
+    def N1(self, line_id:int):
+        update_line = initialize_array("update", "line", 2)
+        update_line["id"] = [line_id, 0]
+        update_line["from_status"] = [0,1]
+        update_line["to_status"] = [0,1]
+        alt = self.gp.find_alternative_edges(line_id)
+        table = pd.DataFrame()
+        table['Line_ID'] = output_data['line']['id'][0]
+        table.set_index('Line_ID')
+        table['max_time'] = datetime.fromtimestamp(0)
+        table['max__loading_pu'] = 0.0
+        for line_alt in alt:
+            model = PowerGridModel(input_data=self.grid)
+            update_line["id"][1] = [line_alt]  # change line ID 
+            update_data = {"line": update_line}
+            output_data = model.update(update_data=update_data).calculate_power_flow(update_data=self.update_data, calculation_method=CalculationMethod.newton_raphson)
+
+
+
+        #print( self.grid['sym_load']['id'])
         
 
         

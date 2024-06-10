@@ -60,7 +60,7 @@ class GraphProcessor:
         edge_vertex_id_pairs: List[Tuple[int, int]],
         edge_enabled: List[bool],
         source_vertex_id: int,
-    ) -> None:
+    ):
         """
         Initialize a graph processor object with an undirected graph.
         Only the edges which are enabled are taken into account.
@@ -117,6 +117,10 @@ class GraphProcessor:
 
         if nx.cycle_basis(self.graph):
             raise GraphCycleError
+    
+    def create(self):
+        return self.graph
+        
 
     def find_downstream_vertices(self, edge_id: int) -> List[int]:
         """

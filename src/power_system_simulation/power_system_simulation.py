@@ -2,14 +2,17 @@ import warnings
 import json 
 import pandas as pd 
 import numpy as np
+import networkx as nx
+import matplotlib.pyplot as plt
 import pyarrow.parquet as pq
 
 with warnings.catch_warnings(action="ignore", category=DeprecationWarning):
     # suppress warning about pyarrow as future required dependency
     from pandas import DataFrame
 
-import power_system_simulation.power_grid_calculation as PGC
-import power_system_simulation.graph_processing as GP
+from power_system_simulation.power_grid_calculation import PowerGridCalculation
+from power_system_simulation.graph_processing import GraphProcessor
+
 from power_grid_model.utils import json_deserialize
 
 #Input data validity check
@@ -34,10 +37,11 @@ class InvalidIDs(Exception):
 class NotEnoughEVChargingProfiles(Exception):
     pass
 
+
 class input_data_validity_check:
      #check valid PGM input data and if has cycles and if fully connected
     def __init__(self, network_data: str):
-        self.pgc = PGC.PowerGridCalculation()
+        self.pgc = PowerGridCalculation()
         self.grid = self.pgc.construct_PGM(network_data)
         
     # check LV grid has exactly one transformer and one source
@@ -60,12 +64,15 @@ class input_data_validity_check:
             raise MismatchFromAndToNodes
         
     def check_graph(self):
-        vertex_ids = self.grid['node']['id']
+        vertex_ids = self.grid['node']['id'].tolist()
         edge_vertex_id_pairs = list(zip(self.grid['line']['from_node'], self.grid['line']['to_node']))
-        edge_ids = self.grid['line']['id']
-        edge_enabled = self.grid['line']['to_status']
-        source_vertex_id = self.meta['mv_source_node'][0]
-        self.gp = GP.GraphProcessor(vertex_ids, edge_ids, edge_vertex_id_pairs, edge_enabled, source_vertex_id)
+        edge_vertex_id_pairs.append((self.grid['transformer']['from_node'][0], self.grid['transformer']['to_node'][0]))
+        edge_ids = self.grid['line']['id'].tolist()
+        edge_ids.append(self.grid['transformer']['id'][0])
+        edge_enabled =  np.logical_and(self.grid['line']['from_status'], self.grid['line']['to_status']).tolist()
+        edge_enabled.append(1)
+        source_vertex_id = self.meta['mv_source_node']
+        self.gp = GraphProcessor(vertex_ids, edge_ids, edge_vertex_id_pairs, edge_enabled, source_vertex_id)
         
     #check if the timestamps and id are matching between the acitve load profile, reactive load profile and EV charging profile and if sym_load id matches
     def check_matching(self, active_load_profile: str , reactive_load_profile: str, ev_active_power_profile: str):
@@ -88,3 +95,40 @@ class input_data_validity_check:
 
 class EV_penetration_level:
     pass
+
+class Optimal_tap_position:
+    pass
+
+class N1_calculation:
+    def __init__(self, network_data: str, meta_data: str):
+        with open(meta_data, 'r' ) as file:
+            self.meta = json.load(file)
+        self.pgc = PowerGridCalculation()
+        self.grid = self.pgc.construct_PGM(network_data)
+        vertex_ids = self.grid['node']['id'].tolist()
+        edge_vertex_id_pairs = list(zip(self.grid['line']['from_node'], self.grid['line']['to_node']))
+        edge_vertex_id_pairs.append((self.grid['transformer']['from_node'][0], self.grid['transformer']['to_node'][0]))
+        edge_ids = self.grid['line']['id'].tolist()
+        edge_ids.append(self.grid['transformer']['id'][0])
+        edge_enabled =  np.logical_and(self.grid['line']['from_status'], self.grid['line']['to_status']).tolist()
+        edge_enabled.append(1)
+        source_vertex_id = self.meta['mv_source_node']
+        self.gp = GraphProcessor(vertex_ids, edge_ids, edge_vertex_id_pairs, edge_enabled, source_vertex_id)
+        self.G = self.gp.create()
+        nx.draw(self.G, with_labels=True)
+        plt.show()
+        #print(edge_ids)
+
+    def N1(self):
+        for id in self.grid['line']['id']:
+         print(self.gp.find_alternative_edges(id))
+        
+
+        
+
+
+
+
+
+
+        

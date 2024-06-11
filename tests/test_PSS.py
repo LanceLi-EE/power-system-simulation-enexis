@@ -28,7 +28,7 @@ class TestMyClass(unittest.TestCase):
         path3 = "tests/data/small_network/input/reactive_power_profile.parquet"
         path4 = "tests/data/small_network/input/ev_active_power_profile.parquet"
         pss = input_data_validity_check(path0)
-        n1 = N1_calculation(path0, path1)
+        n1 = N1_calculation(path0, path1, path2, path3)
         try:
             # call the class.function, if there is an error then record it
             #self.grid = PGC.PowerGridCalculation().construct_PGM(path0)
@@ -40,7 +40,7 @@ class TestMyClass(unittest.TestCase):
             #pss.check_graph()
             #pss.check_matching(path2, path3, path4)
             #pss.check_EV_charging_profiles()
-             n1.N1()
+            print(n1.N1(18))
              
         except Exception as e:
             # if there is an error, print the information and continue to next test case

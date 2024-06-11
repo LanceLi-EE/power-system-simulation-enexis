@@ -121,7 +121,7 @@ class PowerGridCalculation:
             i = i + 1
         # p_loss
         p_loss = pd.DataFrame()
-        p_loss = abs(abs(pd.DataFrame(output_data["line"]["p_from"])) - abs(pd.DataFrame(output_data["line"]["p_to"])))
+        p_loss = pd.DataFrame(output_data["line"]["p_from"]) + pd.DataFrame(output_data["line"]["p_to"])
         i = 0
         for column_name, column_data in p_loss.items():
             table2.loc[i, "energy_loss_kw"] = integrate.trapezoid(column_data.to_list()) / 1000

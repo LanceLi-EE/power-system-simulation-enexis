@@ -146,7 +146,7 @@ class optimal_tap_position:
 
             # line losses
             p_loss = pd.DataFrame()
-            p_loss = abs(abs(pd.DataFrame(pow_flow_result["line"]["p_from"])) - abs(pd.DataFrame(pow_flow_result["line"]["p_to"])))
+            p_loss = pd.DataFrame(pow_flow_result["line"]["p_from"]) + pd.DataFrame(pow_flow_result["line"]["p_to"])
 
             table_line_losses = pd.DataFrame()
             table_line_losses["energy_loss_kw"] = 0.0

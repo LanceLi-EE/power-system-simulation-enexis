@@ -18,6 +18,7 @@ from power_grid_model.utils import json_deserialize, json_serialize
 from power_system_simulation.power_system_simulation import input_data_validity_check
 
 from power_system_simulation.power_system_simulation import N1_calculation
+from power_system_simulation.power_system_simulation import optimal_tap_position
 
 class TestMyClass(unittest.TestCase):
     def test_ini_case1(self):
@@ -46,6 +47,25 @@ class TestMyClass(unittest.TestCase):
             print("ini_case1() raise custom error:", e.__class__.__name__)
             print("detail:", e)
             pass
+
+    def test_optimal_tap_position(self):
+        data_path_pow_grid_model = ""
+        data_path_active_load_prof = ""
+        data_path_reactive_load_prof = ""
+
+        opt_tap_pos_inst = optimal_tap_position(data_path_pow_grid_model,
+                                                data_path_active_load_prof,
+                                                data_path_reactive_load_prof)
+        
+        criteria = "minimize_line_losses"
+        
+        try:
+            optimal_tap_pos = opt_tap_pos_inst.find_optimal_tap_position(criteria)
+            print(optimal_tap_pos)
+        except Exception as exc:
+            print(exc)
+
+
 
 if __name__ == "__main__":
     unittest.main()

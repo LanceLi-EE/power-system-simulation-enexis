@@ -132,7 +132,7 @@ class optimal_tap_position:
 
         for tap_pos in tap_positions:
             # update tap position in power grid input data
-            self.low_voltage_grid["trandformer"]["tap_pos"] = [tap_pos]
+            self.low_voltage_grid["transformer"]["tap_pos"] = [tap_pos]
 
             # create power grid model with updated tap position
             pow_grid_model = PowerGridModel(input_data=self.low_voltage_grid)

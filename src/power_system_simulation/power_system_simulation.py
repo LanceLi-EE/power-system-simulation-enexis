@@ -134,14 +134,22 @@ class EV_penetration_level:
             for load in self.grid['sym_load']:
                 if load['node'] in down_stream_node:
                     list_load.append(load['id'])
-            if evs_per_feeder > len(list_load):
+            if evs_per_feeder >= len(list_load):
                 update_seq = []
                 for load in list_load:
                     update_seq.append(pd.DataFrame(self.update_data).columns.get_loc(load))
                     for seq in update_seq:
                         self.update_data['sym_load']['p_specified'][:,seq] += self.ev.iloc[:,ev_seq[0]]
                         ev_seq = ev_seq[1:]
-        print(self.update_data)
+            else:
+                select_load = np.random.choice(list_load, evs_per_feeder, replace=False)
+                update_seq = []
+                for load in select_load:
+                    update_seq.append(pd.DataFrame(self.update_data).columns.get_loc(load))
+                    for seq in update_seq:
+                        self.update_data['sym_load']['p_specified'][:,seq] += self.ev.iloc[:,ev_seq[0]]
+                        ev_seq = ev_seq[1:]
+        return(self.pgc.time_series_power_flow_calculation())
         
             
         

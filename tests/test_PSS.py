@@ -31,7 +31,6 @@ class TestMyClass(unittest.TestCase):
         pss = input_data_validity_check(path0)
         n1 = N1_calculation(path0, path1, path2, path3)
         ev = EV_penetration_level(path0, path2, path3, path4, path1)
-        ev.calculate(0.2)
         try:
             # call the class.function, if there is an error then record it
             #self.grid = PGC.PowerGridCalculation().construct_PGM(path0)
@@ -43,9 +42,10 @@ class TestMyClass(unittest.TestCase):
             #pss.check_graph()
             #pss.check_matching(path2, path3, path4)
             #pss.check_EV_charging_profiles()
-            print(n1.N1(17))
-            #ev.calculate(0.2)
-             
+            #print(n1.N1(17))
+            tables = ev.calculate(0.2)
+            print(tables[0])
+            print(tables[1])
         except Exception as e:
             # if there is an error, print the information and continue to next test case
             print("ini_case1() raise custom error:", e.__class__.__name__)

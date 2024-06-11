@@ -125,14 +125,34 @@ class EV_penetration_level:
         total_houses = len(self.grid['sym_load']['id'])
         number_of_feeders = len(self.meta['lv_feeders'])
         evs_per_feeder = math.floor(p_level *total_houses/number_of_feeders)
+        ramdon_range = self.ev.shape[1]
+        arr = np.arange(ramdon_range)
+        ev_seq = np.random.shuffle(arr)
         for feeder in self.meta['lv_feeders']:
-            down_stream_node = GraphProcessor.find_downstream_vertices(feeder)
+            down_stream_node = self.gp.find_downstream_vertices(feeder)
             list_load = []
             for load in self.grid['sym_load']:
                 if load['node'] in down_stream_node:
                     list_load.append(load['id'])
             if evs_per_feeder > len(list_load):
-                pass
+                update_seq = []
+                for load in list_load:
+                    update_seq.append(pd.DataFrame(self.update_data).columns.get_loc(load))
+                    for seq in update_seq:
+                        self.update_data['sym_load']['p_specified'][:,seq] += self.ev.iloc[:,ev_seq[0]]
+                        ev_seq = ev_seq[1:]
+            else:
+                select_loads = np.random.choice(list_load, evs_per_feeder, replace=False)
+                for load in select_loads:
+                    update_seq = [pd.DataFrame(self.update_data).columns.get_loc(load)] 
+                    for seq in update_seq:
+                        self.update_data['sym_load']['p_specified'][:,seq] += self.ev.iloc[:,ev_seq[0]]
+                        ev_seq = ev_seq[1:]
+        
+        print(self.update_data)
+        print(self.ev)
+        
+            
         
 
 
@@ -180,7 +200,6 @@ class N1_calculation:
         table['max_Line_ID'] = 0
         table['max_time'] = datetime.fromtimestamp(0)
         table['max__loading_pu'] = 0.0
-        print(self.update_data)
         if not alt:
             table.iloc[:, :] = np.nan
             return table

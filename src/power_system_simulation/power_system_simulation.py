@@ -142,18 +142,30 @@ class optimal_tap_position:
             p_loss = pd.DataFrame()
             p_loss = abs(abs(pd.DataFrame(pow_flow_result["line"]["p_from"])) - abs(pd.DataFrame(pow_flow_result["line"]["p_to"])))
 
-            table2 = pd.DataFrame()
-            table2["energy_loss_kw"] = 0.0
+            table_line_losses = pd.DataFrame()
+            table_line_losses["energy_loss_kw"] = 0.0
             i = 0
             for column_name, column_data in p_loss.items():
-                table2.loc[i, "energy_loss_kw"] = integrate.trapezoid(column_data.to_list()) / 1000
+                table_line_losses.loc[i, "energy_loss_kw"] = integrate.trapezoid(column_data.to_list()) / 1000
                 i = i + 1
 
-            line_losses.append(sum(table2["energy_loss_kw"]))
+            line_losses.append(sum(table_line_losses["energy_loss_kw"]))
 
             # voltage deviations
+            table_voltages = pd.DataFrame()
+            table_voltages["max_pu"] = 0.0
+            table_voltages["min_pu"] = 0.0
+            i = 0
+            for node_scenario in pow_flow_result["node"]:
+                df_temp = pd.DataFrame(node_scenario)
+                max_value_pu = df_temp.at[df_temp["u_pu"].idxmax(), "u_pu"]
+                min_value_pu = df_temp.at[df["u_pu"].idxmin(), "u_pu"]
+                table_voltages.loc[i, "max_pu"] = max_value_pu
+                table_voltages.loc[i, "min_pu"] = min_value_pu
+                i = i + 1
             
-                # write code here
+            max_volt_deviation = max(max(abs(table_voltages["max_pu"]-1)), max(abs(table_voltages["min_pu"]-1)))
+            voltage_deviations.append(max_volt_deviation)
 
         # find optimal tap bosition based on criteria chosen by user
         if optimization_criteria == "minimize_line_losses"

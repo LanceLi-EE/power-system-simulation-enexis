@@ -5,6 +5,7 @@ import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
 import pyarrow.parquet as pq
+from datetime import datetime
 
 with warnings.catch_warnings(action="ignore", category=DeprecationWarning):
     # suppress warning about pyarrow as future required dependency
@@ -14,7 +15,7 @@ from power_system_simulation.power_grid_calculation import PowerGridCalculation
 from power_system_simulation.graph_processing import GraphProcessor
 
 from power_grid_model.utils import json_deserialize
-from power_grid_model import PowerGridModel, CalculationMethod
+from power_grid_model import PowerGridModel, CalculationMethod, initialize_array
 
 from scipy import integrate
 

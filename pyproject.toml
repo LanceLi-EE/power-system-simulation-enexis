@@ -28,7 +28,8 @@ dev = [
   'numpy',
   'scipy',
   'pandas',
-  'matplotlib'
+  'matplotlib',
+  'pyarrow'
 ]
 
 # add more dependencies for running the examples

@@ -14,7 +14,9 @@ from power_system_simulation.power_grid_calculation import PowerGridCalculation
 from power_system_simulation.graph_processing import GraphProcessor
 
 from power_grid_model.utils import json_deserialize
-from power_grid_model import PowerGridModel
+from power_grid_model import PowerGridModel, CalculationMethod
+
+from scipy import integrate
 
 #Input data validity check
 class MoreThanOneTransformerOrSource(Exception):
@@ -162,7 +164,7 @@ class optimal_tap_position:
             for node_scenario in pow_flow_result["node"]:
                 df_temp = pd.DataFrame(node_scenario)
                 max_value_pu = df_temp.at[df_temp["u_pu"].idxmax(), "u_pu"]
-                min_value_pu = df_temp.at[df["u_pu"].idxmin(), "u_pu"]
+                min_value_pu = df_temp.at[df_temp["u_pu"].idxmin(), "u_pu"]
                 table_voltages.loc[i, "max_pu"] = max_value_pu
                 table_voltages.loc[i, "min_pu"] = min_value_pu
                 i = i + 1

@@ -150,10 +150,9 @@ class optimal_tap_position:
 
             table_line_losses = pd.DataFrame()
             table_line_losses["energy_loss_kw"] = 0.0
-            i = 0
-            for column_name, column_data in p_loss.items():
-                table_line_losses.loc[i, "energy_loss_kw"] = integrate.trapezoid(column_data.to_list()) / 1000
-                i = i + 1
+            
+            for (column_name, column_data), i in zip(p_loss.items(), enumerate(p_loss.columns)):
+                table_line_losses.loc[i[0], "energy_loss_kw"] = integrate.trapezoid(column_data.to_list()) / 1000
 
             line_losses.append(sum(table_line_losses["energy_loss_kw"]))
 

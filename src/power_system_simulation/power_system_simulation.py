@@ -193,11 +193,14 @@ class optimal_tap_position:
             
 
 class N1_calculation:
-    def __init__(self, network_data: str, meta_data: str):
+    def __init__(self, network_data: str, meta_data: str, active_load_profile: str , reactive_load_profile: str):
         with open(meta_data, 'r' ) as file:
             self.meta = json.load(file)
         self.pgc = PowerGridCalculation()
         self.grid = self.pgc.construct_PGM(network_data)
+        self.update_data = self.pgc.creat_batch_update_dataset(active_load_profile, reactive_load_profile)
+        self.df1 = pd.read_parquet(active_load_profile)
+        self.timestamp = self.df1.index
         vertex_ids = self.grid['node']['id'].tolist()
         edge_vertex_id_pairs = list(zip(self.grid['line']['from_node'], self.grid['line']['to_node']))
         edge_vertex_id_pairs.append((self.grid['transformer']['from_node'][0], self.grid['transformer']['to_node'][0]))
@@ -207,14 +210,37 @@ class N1_calculation:
         edge_enabled.append(1)
         source_vertex_id = self.meta['mv_source_node']
         self.gp = GraphProcessor(vertex_ids, edge_ids, edge_vertex_id_pairs, edge_enabled, source_vertex_id)
-        self.G = self.gp.create()
-        nx.draw(self.G, with_labels=True)
-        plt.show()
+        #self.G = self.gp.create()
+        #nx.draw(self.G, with_labels=True)
+        #plt.show()
         #print(edge_ids)
 
-    def N1(self):
-        for id in self.grid['line']['id']:
-         print(self.gp.find_alternative_edges(id))
-        
-
-    
+    def N1(self, line_id:int):
+        update_line = initialize_array("update", "line", 2)
+        update_line["id"] = [line_id, 0]
+        update_line["from_status"] = [0,1]
+        update_line["to_status"] = [0,1]
+        alt = self.gp.find_alternative_edges(line_id)
+        table = pd.DataFrame()
+        table['alt_Line_ID'] = alt
+        table.set_index('alt_Line_ID')
+        table['max_Line_ID'] = 0
+        table['max_time'] = datetime.fromtimestamp(0)
+        table['max__loading_pu'] = 0.0
+        if not alt:
+            table.iloc[:, :] = np.nan
+            return table
+        i = 0
+        for line_alt in alt:
+            model = PowerGridModel(input_data=self.grid)
+            update_line["id"][1] = line_alt  # change line ID 
+            update_data = {"line": update_line}
+            model.update(update_data=update_data)
+            output_data = model.calculate_power_flow(update_data=self.update_data, calculation_method=CalculationMethod.newton_raphson)
+            df_temp = pd.DataFrame(output_data['line']['loading'])
+            max_index = df_temp.stack().idxmax()
+            table.loc[i, 'max__loading_pu'] = df_temp.stack().max()
+            table.loc[i, 'max_time'] = self.timestamp[max_index[0]]
+            table.loc[i, 'max_Line_ID'] = max_index[1]
+            i = i+1
+        return table

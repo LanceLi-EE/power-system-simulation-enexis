@@ -122,6 +122,7 @@ class EV_penetration_level:
         self.gp = GraphProcessor(vertex_ids, edge_ids, edge_vertex_id_pairs, edge_enabled, source_vertex_id)
 
     def calculate(self, p_level:float):
+        np.random.seed(0)
         total_houses = len(self.grid['sym_load']['id'])
         number_of_feeders = len(self.meta['lv_feeders'])
         evs_per_feeder = math.floor(p_level *total_houses/number_of_feeders)
@@ -150,19 +151,12 @@ class EV_penetration_level:
                         self.update_data['sym_load']['p_specified'][:,seq] += self.ev.iloc[:,ev_seq[0]]
                         ev_seq = ev_seq[1:]
         return(self.pgc.time_series_power_flow_calculation())
+    
         
             
-        
-
-
-
-
-
-
-
-
 class Optimal_tap_position:
     pass
+
 
 class N1_calculation:
     def __init__(self, network_data: str, meta_data: str, active_load_profile: str , reactive_load_profile: str):

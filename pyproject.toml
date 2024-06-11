@@ -29,7 +29,8 @@ dev = [
   'scipy',
   'pandas',
   'matplotlib',
-  'pyarrow'
+  'pyarrow',
+  'power-grid-model'
 ]
 
 # add more dependencies for running the examples

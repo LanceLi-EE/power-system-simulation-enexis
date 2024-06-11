@@ -27,7 +27,8 @@ dev = [
   'networkx',
   'numpy',
   'scipy',
-  'pandas'
+  'pandas',
+  'matplotlib'
 ]
 
 # add more dependencies for running the examples

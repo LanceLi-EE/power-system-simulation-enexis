@@ -7,6 +7,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import pyarrow.parquet as pq
 from datetime import datetime
+from scipy import integrate
 
 with warnings.catch_warnings(action="ignore", category=DeprecationWarning):
     # suppress warning about pyarrow as future required dependency
@@ -156,13 +157,13 @@ class EV_penetration_level:
     
         
             
-class Optimal_tap_position:
+class optimal_tap_position:
     def __init__(self, low_voltage_network_data: str, active_load_profile: str, reactive_load_profile:str):
         self.power_grid_calculation = PowerGridCalculation()
         self.low_voltage_grid = self.power_grid_calculation.construct_PGM(low_voltage_network_data)
         self.load_profile_batch = self.power_grid_calculation.creat_batch_update_dataset(active_load_profile, reactive_load_profile)
 
-    def find_optimal_tap_position(self, optimization_criteria):
+    def find_optimal_tap_position(self, optimization_criteria:str):
         """
         Function that finds the optimal tap position
         of the LV transformer in the grid based on
@@ -259,10 +260,6 @@ class N1_calculation:
         edge_enabled.append(1)
         source_vertex_id = self.meta['mv_source_node']
         self.gp = GraphProcessor(vertex_ids, edge_ids, edge_vertex_id_pairs, edge_enabled, source_vertex_id)
-        #self.G = self.gp.create()
-        #nx.draw(self.G, with_labels=True)
-        #plt.show()
-        #print(edge_ids)
 
     def N1(self, line_id:int):
         update_line = initialize_array("update", "line", 2)

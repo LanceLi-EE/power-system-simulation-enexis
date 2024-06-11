@@ -2,6 +2,7 @@ import warnings
 import json 
 import pandas as pd 
 import numpy as np
+import math
 import networkx as nx
 import matplotlib.pyplot as plt
 import pyarrow.parquet as pq
@@ -102,7 +103,44 @@ class input_data_validity_check:
             raise NotEnoughEVChargingProfiles
 
 class EV_penetration_level:
-    pass
+    def __init__(self, network_data: str, active_load_profile: str , reactive_load_profile: str, ev_active_power_profile: str, meta_data: str):
+        self.pgc = PowerGridCalculation()
+        self.grid = self.pgc.construct_PGM(network_data)
+        self.update_data = self.pgc.creat_batch_update_dataset(active_load_profile, reactive_load_profile)
+        self.ev = pd.read_parquet(ev_active_power_profile)
+        with open(meta_data, 'r' ) as file:
+            self.meta = json.load(file)
+        
+        vertex_ids = self.grid['node']['id'].tolist()
+        edge_vertex_id_pairs = list(zip(self.grid['line']['from_node'], self.grid['line']['to_node']))
+        edge_vertex_id_pairs.append((self.grid['transformer']['from_node'][0], self.grid['transformer']['to_node'][0]))
+        edge_ids = self.grid['line']['id'].tolist()
+        edge_ids.append(self.grid['transformer']['id'][0])
+        edge_enabled =  np.logical_and(self.grid['line']['from_status'], self.grid['line']['to_status']).tolist()
+        edge_enabled.append(1)
+        source_vertex_id = self.meta['mv_source_node']
+        self.gp = GraphProcessor(vertex_ids, edge_ids, edge_vertex_id_pairs, edge_enabled, source_vertex_id)
+
+    def calculate(self, p_level:float):
+        total_houses = len(self.grid['sym_load']['id'])
+        number_of_feeders = len(self.meta['lv_feeders'])
+        evs_per_feeder = math.floor(p_level *total_houses/number_of_feeders)
+        for feeder in self.meta['lv_feeders']:
+            down_stream_node = GraphProcessor.find_downstream_vertices(feeder)
+            list_load = []
+            for load in self.grid['sym_load']:
+                if load['node'] in down_stream_node:
+                    list_load.append(load['id'])
+            if evs_per_feeder > len(list_load):
+                pass
+        
+
+
+
+
+
+
+
 
 class Optimal_tap_position:
     pass
@@ -142,6 +180,7 @@ class N1_calculation:
         table['max_Line_ID'] = 0
         table['max_time'] = datetime.fromtimestamp(0)
         table['max__loading_pu'] = 0.0
+        print(self.update_data)
         if not alt:
             table.iloc[:, :] = np.nan
             return table

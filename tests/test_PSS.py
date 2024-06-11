@@ -39,7 +39,7 @@ class TestMyClass(unittest.TestCase):
             #pss.check_graph()
             #pss.check_matching(path2, path3, path4)
             #pss.check_EV_charging_profiles()
-            print(n1.N1(18))
+            print(n1.N1(17))
              
         except Exception as e:
             # if there is an error, print the information and continue to next test case

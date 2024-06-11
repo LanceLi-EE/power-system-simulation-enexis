@@ -38,6 +38,9 @@ class InvalidIDs(Exception):
 class NotEnoughEVChargingProfiles(Exception):
     pass
 
+class OptimalTapPositionCriteriaError(Exception):
+    pass
+
 
 class input_data_validity_check:
      #check valid PGM input data and if has cycles and if fully connected
@@ -168,12 +171,14 @@ class optimal_tap_position:
             voltage_deviations.append(max_volt_deviation)
 
         # find optimal tap bosition based on criteria chosen by user
-        if optimization_criteria == "minimize_line_losses"
+        if optimization_criteria == "minimize_line_losses":
             min_loss_idx = line_losses.index(min(line_losses))
             optimal_tap_pos = tap_positions[min_loss_idx]
-        elif optimization_criteria == "minimize_voltage_deviations"
+        elif optimization_criteria == "minimize_voltage_deviations":
             min_volt_dev_idx = voltage_deviations.index(min(voltage_deviations))
             optimal_tap_pos = tap_positions[min_volt_dev_idx]
+        else:
+            raise OptimalTapPositionCriteriaError("Criteria incorrect")
 
         # set tap position back to intial value
         self.low_voltage_grid["transformer"]["tap_pos"] = [original_tap_pos]

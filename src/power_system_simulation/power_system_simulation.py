@@ -46,6 +46,8 @@ class InvalidIDs(Exception):
 class NotEnoughEVChargingProfiles(Exception):
     pass
 
+class OptimalTapPositionCriteriaError(Exception):
+    pass
 
 class input_data_validity_check:
      #check valid PGM input data and if has cycles and if fully connected
@@ -155,7 +157,88 @@ class EV_penetration_level:
         
             
 class Optimal_tap_position:
-    pass
+    def __init__(self, low_voltage_network_data: str, active_load_profile: str, reactive_load_profile:str):
+        self.power_grid_calculation = PowerGridCalculation()
+        self.low_voltage_grid = self.power_grid_calculation.construct_PGM(low_voltage_network_data)
+        self.load_profile_batch = self.power_grid_calculation.creat_batch_update_dataset(active_load_profile, reactive_load_profile)
+
+    def find_optimal_tap_position(self, optimization_criteria):
+        """
+        Function that finds the optimal tap position
+        of the LV transformer in the grid based on
+        one of the two optimization criteria's:
+        - minimal total energy loss of all the lines and the whole time period
+        - minimal (averaged accross all nodes) deviation of p.u. voltages with respect to 1 p.u.
+        """
+
+        # find minimum and maximum tap position; create a list of tap positions in range of min to max tap position
+        min_tap_pos = self.low_voltage_grid["transformer"]["tap_min"][0]
+        max_tap_pos = self.low_voltage_grid["transformer"]["tap_max"][0]
+        tap_positions = [*range(min(min_tap_pos, max_tap_pos), max(min_tap_pos, max_tap_pos)+1)]
+        
+        # store original tap position
+        original_tap_pos = self.low_voltage_grid["transformer"]["tap_pos"][0]
+
+        # lists to store relevant data for each tap position
+        line_losses = list()
+        voltage_deviations = list()
+
+        for tap_pos in tap_positions:
+            # update tap position in power grid input data
+            self.low_voltage_grid["transformer"]["tap_pos"] = [tap_pos]
+
+            # create power grid model with updated tap position
+            pow_grid_model = PowerGridModel(input_data=self.low_voltage_grid)
+
+            # run time series power flow calculation
+            pow_flow_result = pow_grid_model.calculate_power_flow(
+                update_data = self.load_profile_batch, calculation_method=CalculationMethod.newton_raphson
+            )
+
+            # extract relevant information about lines:
+
+            # line losses
+            p_loss = pd.DataFrame()
+            p_loss = pd.DataFrame(pow_flow_result["line"]["p_from"]) + pd.DataFrame(pow_flow_result["line"]["p_to"])
+
+            table_line_losses = pd.DataFrame()
+            table_line_losses["energy_loss_kw"] = 0.0
+            
+            for (column_name, column_data), i in zip(p_loss.items(), enumerate(p_loss.columns)):
+                table_line_losses.loc[i[0], "energy_loss_kw"] = integrate.trapezoid(column_data.to_list()) / 1000
+
+            line_losses.append(sum(table_line_losses["energy_loss_kw"]))
+
+            # voltage deviations
+            table_voltages = pd.DataFrame()
+            table_voltages["max_pu"] = 0.0
+            table_voltages["min_pu"] = 0.0
+            i = 0
+            for node_scenario in pow_flow_result["node"]:
+                df_temp = pd.DataFrame(node_scenario)
+                max_value_pu = df_temp.at[df_temp["u_pu"].idxmax(), "u_pu"]
+                min_value_pu = df_temp.at[df_temp["u_pu"].idxmin(), "u_pu"]
+                table_voltages.loc[i, "max_pu"] = max_value_pu
+                table_voltages.loc[i, "min_pu"] = min_value_pu
+                i = i + 1
+            
+            max_volt_deviation = max(max(abs(table_voltages["max_pu"]-1)), max(abs(table_voltages["min_pu"]-1)))
+            voltage_deviations.append(max_volt_deviation)
+
+        # find optimal tap bosition based on criteria chosen by user
+        if optimization_criteria == "minimize_line_losses":
+            min_loss_idx = line_losses.index(min(line_losses))
+            optimal_tap_pos = tap_positions[min_loss_idx]
+        elif optimization_criteria == "minimize_voltage_deviations":
+            min_volt_dev_idx = voltage_deviations.index(min(voltage_deviations))
+            optimal_tap_pos = tap_positions[min_volt_dev_idx]
+        else:
+            raise OptimalTapPositionCriteriaError("Criteria incorrect")
+
+        # set tap position back to intial value
+        self.low_voltage_grid["transformer"]["tap_pos"] = [original_tap_pos]
+
+        return optimal_tap_pos
 
 
 class N1_calculation:

@@ -48,7 +48,7 @@ class TestMyClass(unittest.TestCase):
             print("detail:", e)
             pass
 
-    def test_optimal_tap_position(self):
+    def test_optimal_tap_position_for_min_line_loss(self):
         data_path_pow_grid_model = "tests/data/small_network/input/input_network_data.json"
         data_path_active_load_prof = "tests/data/small_network/input/active_power_profile.parquet"
         data_path_reactive_load_prof = "tests/data/small_network/input/reactive_power_profile.parquet"
@@ -58,6 +58,23 @@ class TestMyClass(unittest.TestCase):
                                                 data_path_reactive_load_prof)
         
         criteria = "minimize_line_losses"
+        
+        try:
+            optimal_tap_pos = opt_tap_pos_inst.find_optimal_tap_position(criteria)
+            print("optimal tap position: " ,optimal_tap_pos)
+        except Exception as exc:
+            print(exc)
+
+    def test_optimal_tap_position_for_min_volt_dev(self):
+        data_path_pow_grid_model = "tests/data/small_network/input/input_network_data.json"
+        data_path_active_load_prof = "tests/data/small_network/input/active_power_profile.parquet"
+        data_path_reactive_load_prof = "tests/data/small_network/input/reactive_power_profile.parquet"
+
+        opt_tap_pos_inst = optimal_tap_position(data_path_pow_grid_model,
+                                                data_path_active_load_prof,
+                                                data_path_reactive_load_prof)
+        
+        criteria = "minimize_voltage_deviations"
         
         try:
             optimal_tap_pos = opt_tap_pos_inst.find_optimal_tap_position(criteria)

@@ -117,10 +117,9 @@ class GraphProcessor:
 
         if nx.cycle_basis(self.graph):
             raise GraphCycleError
-    
+
     def create(self):
         return self.graph
-        
 
     def find_downstream_vertices(self, edge_id: int) -> List[int]:
         """

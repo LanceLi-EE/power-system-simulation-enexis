@@ -49,9 +49,9 @@ class TestMyClass(unittest.TestCase):
             pass
 
     def test_optimal_tap_position(self):
-        data_path_pow_grid_model = ""
-        data_path_active_load_prof = ""
-        data_path_reactive_load_prof = ""
+        data_path_pow_grid_model = "tests/data/small_network/input/input_network_data.json"
+        data_path_active_load_prof = "tests/data/small_network/input/active_power_profile.parquet"
+        data_path_reactive_load_prof = "tests/data/small_network/input/reactive_power_profile.parquet"
 
         opt_tap_pos_inst = optimal_tap_position(data_path_pow_grid_model,
                                                 data_path_active_load_prof,

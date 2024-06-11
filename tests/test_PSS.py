@@ -61,7 +61,7 @@ class TestMyClass(unittest.TestCase):
         
         try:
             optimal_tap_pos = opt_tap_pos_inst.find_optimal_tap_position(criteria)
-            print(optimal_tap_pos)
+            print("optimal tap position: " ,optimal_tap_pos)
         except Exception as exc:
             print(exc)
 

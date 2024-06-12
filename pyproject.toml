@@ -26,7 +26,11 @@ dev = [
   'pytest-cov',
   'networkx',
   'numpy',
-  'scipy'
+  'scipy',
+  'pandas',
+  'matplotlib',
+  'pyarrow',
+  'power-grid-model'
 ]
 
 # add more dependencies for running the examples

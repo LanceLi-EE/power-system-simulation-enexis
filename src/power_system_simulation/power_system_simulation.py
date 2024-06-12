@@ -110,7 +110,61 @@ class input_data_validity_check:
 
 
 class EV_penetration_level:
-    pass
+    def __init__(
+        self,
+        network_data: str,
+        active_load_profile: str,
+        reactive_load_profile: str,
+        ev_active_power_profile: str,
+        meta_data: str,
+    ):
+        self.pgc = PowerGridCalculation()
+        self.grid = self.pgc.construct_PGM(network_data)
+        self.update_data = self.pgc.creat_batch_update_dataset(active_load_profile, reactive_load_profile)
+        self.ev = pd.read_parquet(ev_active_power_profile)
+        with open(meta_data, "r") as file:
+            self.meta = json.load(file)
+
+        vertex_ids = self.grid["node"]["id"].tolist()
+        edge_vertex_id_pairs = list(zip(self.grid["line"]["from_node"], self.grid["line"]["to_node"]))
+        edge_vertex_id_pairs.append((self.grid["transformer"]["from_node"][0], self.grid["transformer"]["to_node"][0]))
+        edge_ids = self.grid["line"]["id"].tolist()
+        edge_ids.append(self.grid["transformer"]["id"][0])
+        edge_enabled = np.logical_and(self.grid["line"]["from_status"], self.grid["line"]["to_status"]).tolist()
+        edge_enabled.append(1)
+        source_vertex_id = self.meta["mv_source_node"]
+        self.gp = GraphProcessor(vertex_ids, edge_ids, edge_vertex_id_pairs, edge_enabled, source_vertex_id)
+
+    def calculate(self, p_level: float):
+        np.random.seed(0)
+        total_houses = len(self.grid["sym_load"]["id"])
+        number_of_feeders = len(self.meta["lv_feeders"])
+        evs_per_feeder = math.floor(p_level * total_houses / number_of_feeders)
+        ramdon_range = self.ev.shape[1]
+        arr = np.arange(ramdon_range)
+        ev_seq = np.random.shuffle(arr)
+        for feeder in self.meta["lv_feeders"]:
+            down_stream_node = self.gp.find_downstream_vertices(feeder)
+            list_load = []
+            for load in self.grid["sym_load"]:
+                if load["node"] in down_stream_node:
+                    list_load.append(load["id"])
+            if evs_per_feeder >= len(list_load):
+                update_seq = []
+                for load in list_load:
+                    update_seq.append(pd.DataFrame(self.update_data).columns.get_loc(load))
+                    for seq in update_seq:
+                        self.update_data["sym_load"]["p_specified"][:, seq] += self.ev.iloc[:, ev_seq[0]]
+                        ev_seq = ev_seq[1:]
+            else:
+                select_load = np.random.choice(list_load, evs_per_feeder, replace=False)
+                update_seq = []
+                for load in select_load:
+                    update_seq.append(pd.DataFrame(self.update_data).columns.get_loc(load))
+                    for seq in update_seq:
+                        self.update_data["sym_load"]["p_specified"][:, seq] += self.ev.iloc[:, ev_seq[0]]
+                        ev_seq = ev_seq[1:]
+        return self.pgc.time_series_power_flow_calculation()
 
 
 class optimal_tap_position:

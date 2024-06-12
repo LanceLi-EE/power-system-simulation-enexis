@@ -75,6 +75,9 @@ class TestMyClass(unittest.TestCase):
             criteria = "minimize_voltage_deviations"
             optimal_tap_pos = opt_tap_pos_inst.find_optimal_tap_position(criteria)
             print("optimal tap position: ", optimal_tap_pos)
+            criteria = "wrong_criteria"
+            optimal_tap_pos = opt_tap_pos_inst.find_optimal_tap_position(criteria)
+            print("optimal tap positionL ", optimal_tap_pos)
         except Exception as e:
             # if there is an error, print the information and continue to next test case
             print("ini_case1() raise custom error:", e.__class__.__name__)

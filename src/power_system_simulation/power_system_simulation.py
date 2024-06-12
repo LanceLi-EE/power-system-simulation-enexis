@@ -278,7 +278,7 @@ class N1_calculation:
         # plt.show()
         # print(edge_ids)
 
-    def N1(self, line_id: int):
+    def N1_calculate(self, line_id: int):
         update_line = initialize_array("update", "line", 2)
         update_line["id"] = [line_id, 0]
         update_line["from_status"] = [0, 1]

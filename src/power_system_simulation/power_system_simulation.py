@@ -1,23 +1,24 @@
+import json
 import warnings
-import json 
-import pandas as pd 
-import numpy as np
-import networkx as nx
-import matplotlib.pyplot as plt
-import pyarrow.parquet as pq
 from datetime import datetime
+
+import matplotlib.pyplot as plt
+import networkx as nx
+import numpy as np
+import pandas as pd
+import pyarrow.parquet as pq
 
 with warnings.catch_warnings(action="ignore", category=DeprecationWarning):
     # suppress warning about pyarrow as future required dependency
     from pandas import DataFrame
 
-from power_system_simulation.power_grid_calculation import PowerGridCalculation
-from power_system_simulation.graph_processing import GraphProcessor
-
+from power_grid_model import CalculationMethod, PowerGridModel, initialize_array
 from power_grid_model.utils import json_deserialize
-from power_grid_model import PowerGridModel, CalculationMethod, initialize_array
-
 from scipy import integrate
+
+from power_system_simulation.graph_processing import GraphProcessor
+from power_system_simulation.power_grid_calculation import PowerGridCalculation
+
 
 #Input data validity check
 class MoreThanOneTransformerOrSource(Exception):

@@ -10,15 +10,16 @@ with warnings.catch_warnings(action="ignore", category=DeprecationWarning):
     # suppress warning about pyarrow as future required dependency
     from pandas import DataFrame
 
-import power_system_simulation.power_grid_calculation as PGC
-import power_system_simulation.graph_processing as GP
-
 from power_grid_model.utils import json_deserialize, json_serialize
 
-from power_system_simulation.power_system_simulation import input_data_validity_check
+import power_system_simulation.graph_processing as GP
+import power_system_simulation.power_grid_calculation as PGC
+from power_system_simulation.power_system_simulation import (
+    N1_calculation,
+    input_data_validity_check,
+    optimal_tap_position,
+)
 
-from power_system_simulation.power_system_simulation import N1_calculation
-from power_system_simulation.power_system_simulation import optimal_tap_position
 
 class TestMyClass(unittest.TestCase):
     def test_ini_case1(self):

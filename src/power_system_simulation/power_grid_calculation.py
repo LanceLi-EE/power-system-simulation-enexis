@@ -20,19 +20,23 @@ from power_grid_model.validation import assert_valid_batch_data, assert_valid_in
 
 class TwoProfilesDoesNotHaveMatchingTimestampsOrLoadIds(Exception):
     """
-    error
+    Exception to check if two load profiles do not have matching timestamps or load IDs.
     """
 
 
 class PowerGridCalculation:
     def __init__(self) -> None:
         """
-        None
+        Class to perform power grid calculations.
         """
 
     def construct_PGM(self, data_path: str):
         """
-        constructing PGM format
+        Construct the Power Grid Model (PGM) from the provided JSON data.
+        Args:
+        data_path (str): Path to the JSON data file.
+        Returns:
+        dict: Deserialized dataset containing input data for PGM.
         """
         # open the file from certain path
         with open(data_path) as fp:
@@ -44,7 +48,15 @@ class PowerGridCalculation:
 
     def creat_batch_update_dataset(self, data_path1: str, data_path2: str):
         """
-        creat batch updata dataset
+        Create a PGM batch update dataset frmo the active and reactive load profiles.
+        Raise error if timestamps and Load IDs don't match.
+        Args:
+        data_path1 (str): Path to the active power load profile parquet file.
+        data_path2 (str): Path to the reactive power load profile parquet file.
+        Returns:
+        dict: Dictionary containing the batch update dataset.
+        Raises:
+        TwoProfilesDoesNotHaveMatchingTimestampsOrLoadIds: If timestamps and Load IDs don't match.
         """
         # read from parquet
         df_load_profile1 = pd.read_parquet(data_path1)
@@ -69,7 +81,20 @@ class PowerGridCalculation:
 
     def time_series_power_flow_calculation(self):
         """
-        calculate block
+        Calculate time series power flow calculation:
+        1. Validate the input & update data.
+        2. Create a PowerGridModel instance using validated input data.
+        3. Perform power flow calculation using the Newton-Raphson method for each timestep of the dataset.
+        4. Record node and line results for each timestep:
+            - Node results: Maximum and minimum voltage magnitudes and corresponding node IDs.
+            - Line results: Maximum and minimum loading and corresponding timestamps, and energy loss.
+        5. Return results in a list of 2 tables: Node results and Line results.
+        Args:
+        None
+        Returns:
+        list: List of 2 tables containing node and line results for each timestep.
+        Raises:
+        AssertionError: If the input or update data is invalid.
         """
         # validate
         assert_valid_batch_data(

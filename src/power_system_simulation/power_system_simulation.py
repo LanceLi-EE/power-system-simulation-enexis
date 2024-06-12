@@ -26,24 +26,31 @@ from power_grid_model import (
 
 #Input data validity check
 class MoreThanOneTransformerOrSource(Exception):
+    """Raised when there is more than one transformer or source on the LV grid"""
     pass
 
 class InvalidLVFeederID(Exception):
+    """Raised when feederIDs are not a subset of the line IDs in the LV grid"""
     pass
 
 class MismatchFromAndToNodes(Exception):
+    """Raised when the from_nodes of the lines in the LV grid are not the same as the to_node of the transformer"""
     pass
 
-class MismatchedTimetamps(Exception):
+class MismatchedTimeStamps(Exception):
+    """Raised when the timestamps of the active load profile, reactive load profile and EV charging profile do not match"""
     pass
 
 class MismatchedIDs(Exception):
+    """Raised when the IDs of the active load profile and reactive load profile do not match"""
     pass
 
 class InvalidIDs(Exception):
+    """Raise if there is a mismatch in the sets of IDs between the sym_load and the active load profile"""
     pass
 
 class NotEnoughEVChargingProfiles(Exception):
+
     pass
 
 
@@ -89,9 +96,9 @@ class input_data_validity_check:
         self.df2 = pd.read_parquet(reactive_load_profile)
         self.df3 = pd.read_parquet(ev_active_power_profile)
         if not np.all(self.df1.index == self.df2.index):
-            raise MismatchedTimetamps
+            raise MismatchedTimeStamps
         if not np.all(self.df2.index == self.df3.index):
-            raise MismatchedTimetamps
+            raise MismatchedTimeStamps
         if not np.all(self.df1.columns == self.df2.columns):
             raise MismatchedIDs
         if not(set(self.grid['sym_load']['id']) == set(self.df1.columns)):
@@ -148,6 +155,8 @@ class EV_penetration_level:
                     for seq in update_seq:
                         self.update_data['sym_load']['p_specified'][:,seq] += self.ev.iloc[:,ev_seq[0]]
                         ev_seq = ev_seq[1:]
+                        print(ev_seq)
+                    
         
         print(self.update_data)
         print(self.ev)

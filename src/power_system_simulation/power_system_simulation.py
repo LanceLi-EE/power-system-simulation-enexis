@@ -239,13 +239,6 @@ class N1_calculation:
             output_data = model.calculate_power_flow(update_data=self.update_data, calculation_method=CalculationMethod.newton_raphson)
             df_temp = pd.DataFrame(output_data['line']['loading'])
             max_index = df_temp.stack().idxmax()
-<<<<<<< Updated upstream
-            table.loc[i, 'max__loading_pu'] = df_temp.stack().max()
-            table.loc[i, 'max_time'] = self.timestamp[max_index[0]]
-            table.loc[i, 'max_Line_ID'] = max_index[1]
-            i = i+1
-        return table
-=======
             table.loc[i, "max__loading_pu"] = df_temp.stack().max()
             table.loc[i, "max_time"] = self.timestamp[max_index[0]]
             table.loc[i, "max_Line_ID"] = max_index[1]
@@ -253,4 +246,3 @@ class N1_calculation:
         return table
 
 # push to Joshua branch
->>>>>>> Stashed changes

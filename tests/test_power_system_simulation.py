@@ -15,7 +15,7 @@ from power_grid_model.utils import json_deserialize, json_serialize
 import power_system_simulation.graph_processing as GP
 import power_system_simulation.power_grid_calculation as PGC
 from power_system_simulation.power_system_simulation import (
-    EV_penetration_level,
+    ev_penetration_level,
     n1_calculation,
     input_data_validity_check,
     optimal_tap_position,
@@ -48,7 +48,7 @@ class TestMyClass(unittest.TestCase):
         path2 = "tests/data/small_network/input/active_power_profile.parquet"
         path3 = "tests/data/small_network/input/reactive_power_profile.parquet"
         path4 = "tests/data/small_network/input/ev_active_power_profile.parquet"
-        ev = EV_penetration_level(path0, path2, path3, path4, path1)
+        ev = ev_penetration_level(path0, path2, path3, path4, path1)
         try:
             # call the class.function, if there is an error then record it
             tables = ev.calculate(0.2)

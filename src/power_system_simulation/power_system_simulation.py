@@ -140,7 +140,7 @@ class input_data_validity_check:
             raise NotEnoughEVChargingProfiles
 
 
-class EV_penetration_level:
+class ev_penetration_level:
     '''
     The class used to ramdon assigen the ev-penetration level
     '''

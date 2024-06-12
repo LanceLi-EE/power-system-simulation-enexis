@@ -15,6 +15,7 @@ from power_grid_model.utils import json_deserialize, json_serialize
 import power_system_simulation.graph_processing as GP
 import power_system_simulation.power_grid_calculation as PGC
 from power_system_simulation.power_system_simulation import (
+    EV_penetration_level,
     N1_calculation,
     input_data_validity_check,
     optimal_tap_position,
@@ -29,59 +30,73 @@ class TestMyClass(unittest.TestCase):
         path3 = "tests/data/small_network/input/reactive_power_profile.parquet"
         path4 = "tests/data/small_network/input/ev_active_power_profile.parquet"
         pss = input_data_validity_check(path0)
-        n1 = N1_calculation(path0, path1, path2, path3)
         try:
             # call the class.function, if there is an error then record it
-            # self.grid = PGC.PowerGridCalculation().construct_PGM(path0)
-            # with open(path1, 'r' ) as file:
-            # meta_data = json.load(file)
-            # ac = pd.read_parquet("tests/data/small_network/input/ev_active_power_profile.parquet")
-            # print(len(ac.columns))
-            # pss.check_grid(path1)
-            # pss.check_graph()
-            # pss.check_matching(path2, path3, path4)
-            # pss.check_EV_charging_profiles()
-            print(n1.N1(18))
-
+            pss.check_grid(path1)
+            pss.check_graph()
+            pss.check_matching(path2, path3, path4)
+            pss.check_EV_charging_profiles()
         except Exception as e:
             # if there is an error, print the information and continue to next test case
             print("ini_case1() raise custom error:", e.__class__.__name__)
             print("detail:", e)
             pass
 
-    def test_optimal_tap_position_for_min_line_loss(self):
-        data_path_pow_grid_model = "tests/data/small_network/input/input_network_data.json"
-        data_path_active_load_prof = "tests/data/small_network/input/active_power_profile.parquet"
-        data_path_reactive_load_prof = "tests/data/small_network/input/reactive_power_profile.parquet"
-
-        opt_tap_pos_inst = optimal_tap_position(
-            data_path_pow_grid_model, data_path_active_load_prof, data_path_reactive_load_prof
-        )
-
-        criteria = "minimize_line_losses"
-
+    def test_ini_case2(self):
+        path0 = "tests/data/small_network/input/input_network_data.json"
+        path1 = "tests/data/small_network/input/meta_data.json"
+        path2 = "tests/data/small_network/input/active_power_profile.parquet"
+        path3 = "tests/data/small_network/input/reactive_power_profile.parquet"
+        path4 = "tests/data/small_network/input/ev_active_power_profile.parquet"
+        ev = EV_penetration_level(path0, path2, path3, path4, path1)
         try:
+            # call the class.function, if there is an error then record it
+            tables = ev.calculate(0.2)
+            print(tables[0])
+            print(tables[1])
+        except Exception as e:
+            # if there is an error, print the information and continue to next test case
+            print("ini_case1() raise custom error:", e.__class__.__name__)
+            print("detail:", e)
+            pass
+
+    def test_ini_case3(self):
+        path0 = "tests/data/small_network/input/input_network_data.json"
+        path1 = "tests/data/small_network/input/meta_data.json"
+        path2 = "tests/data/small_network/input/active_power_profile.parquet"
+        path3 = "tests/data/small_network/input/reactive_power_profile.parquet"
+        path4 = "tests/data/small_network/input/ev_active_power_profile.parquet"
+        opt_tap_pos_inst = optimal_tap_position(path0, path2, path3)
+        try:
+            # call the class.function, if there is an error then record it
+            criteria = "minimize_line_losses"
             optimal_tap_pos = opt_tap_pos_inst.find_optimal_tap_position(criteria)
             print("optimal tap position: ", optimal_tap_pos)
-        except Exception as exc:
-            print(exc)
-
-    def test_optimal_tap_position_for_min_volt_dev(self):
-        data_path_pow_grid_model = "tests/data/small_network/input/input_network_data.json"
-        data_path_active_load_prof = "tests/data/small_network/input/active_power_profile.parquet"
-        data_path_reactive_load_prof = "tests/data/small_network/input/reactive_power_profile.parquet"
-
-        opt_tap_pos_inst = optimal_tap_position(
-            data_path_pow_grid_model, data_path_active_load_prof, data_path_reactive_load_prof
-        )
-
-        criteria = "minimize_voltage_deviations"
-
-        try:
+            criteria = "minimize_voltage_deviations"
             optimal_tap_pos = opt_tap_pos_inst.find_optimal_tap_position(criteria)
             print("optimal tap position: ", optimal_tap_pos)
-        except Exception as exc:
-            print(exc)
+        except Exception as e:
+            # if there is an error, print the information and continue to next test case
+            print("ini_case1() raise custom error:", e.__class__.__name__)
+            print("detail:", e)
+            pass
+
+    def test_ini_case4(self):
+        path0 = "tests/data/small_network/input/input_network_data.json"
+        path1 = "tests/data/small_network/input/meta_data.json"
+        path2 = "tests/data/small_network/input/active_power_profile.parquet"
+        path3 = "tests/data/small_network/input/reactive_power_profile.parquet"
+        path4 = "tests/data/small_network/input/ev_active_power_profile.parquet"
+        n1 = N1_calculation(path0, path1, path2, path3)
+        try:
+            # call the class.function, if there is an error then record it
+            print(n1.N1_calculate(18))
+            print(n1.N1_calculate(17))
+        except Exception as e:
+            # if there is an error, print the information and continue to next test case
+            print("ini_case1() raise custom error:", e.__class__.__name__)
+            print("detail:", e)
+            pass
 
 
 if __name__ == "__main__":

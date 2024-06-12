@@ -244,5 +244,3 @@ class N1_calculation:
             table.loc[i, "max_Line_ID"] = max_index[1]
             i = i + 1
         return table
-
-# push to Joshua branch

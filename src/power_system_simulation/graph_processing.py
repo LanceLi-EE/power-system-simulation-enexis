@@ -202,5 +202,3 @@ class GraphProcessor:
                     g_copy2.remove_edge(u, v)  # recover the graph and check next one
 
         return sorted(alternative)
-
-# push to Joshua branch

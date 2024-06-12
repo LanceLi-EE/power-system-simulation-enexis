@@ -20,17 +20,22 @@ from power_grid_model.validation import assert_valid_batch_data, assert_valid_in
 
 class TwoProfilesDoesNotHaveMatchingTimestampsOrLoadIds(Exception):
     """
-    error
+    Raise error if the two profiles does not have matching timestamps and/or load ids.
     """
 
 
 class PowerGridCalculation:
+    '''
+    The class used to do power flow analyaisi including time series calculation
+    '''
+
+
     def __init__(self) -> None:
         """
         None
         """
 
-    def construct_PGM(self, data_path: str):
+    def construct_pgm(self, data_path: str):
         """
         constructing PGM format
         """

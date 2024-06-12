@@ -16,7 +16,7 @@ import power_system_simulation.graph_processing as GP
 import power_system_simulation.power_grid_calculation as PGC
 from power_system_simulation.power_system_simulation import (
     EV_penetration_level,
-    N1_calculation,
+    n1_calculation,
     input_data_validity_check,
     optimal_tap_position,
 )
@@ -90,11 +90,11 @@ class TestMyClass(unittest.TestCase):
         path2 = "tests/data/small_network/input/active_power_profile.parquet"
         path3 = "tests/data/small_network/input/reactive_power_profile.parquet"
         path4 = "tests/data/small_network/input/ev_active_power_profile.parquet"
-        n1 = N1_calculation(path0, path1, path2, path3)
+        n1 = n1_calculation(path0, path1, path2, path3)
         try:
             # call the class.function, if there is an error then record it
-            print(n1.N1_calculate(18))
-            print(n1.N1_calculate(17))
+            print(n1.n1_calculate(18))
+            print(n1.n1_calculate(17))
         except Exception as e:
             # if there is an error, print the information and continue to next test case
             print("ini_case1() raise custom error:", e.__class__.__name__)

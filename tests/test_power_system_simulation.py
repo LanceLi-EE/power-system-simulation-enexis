@@ -120,6 +120,25 @@ class TestMyClass(unittest.TestCase):
             print("detail:", e)
             pass
 
+    def test_ini_case6(self):
+        path0 = "tests/data/small_network/input/input_network_data.json"
+        path1 = "tests/data/small_network/input/meta_data_wrong.json"
+        path2 = "tests/data/small_network/input/active_power_profile.parquet"
+        path3 = "tests/data/small_network/input/reactive_power_profile.parquet"
+        path4 = "tests/data/small_network/input/ev_active_power_profile.parquet"
+        pss = input_data_validity_check(path0)
+        try:
+            # call the class.function, if there is an error then record it
+            pss.check_grid(path1)
+            pss.check_graph()
+            pss.check_matching(path2, path3, path4)
+            pss.check_EV_charging_profiles()
+        except Exception as e:
+            # if there is an error, print the information and continue to next test case
+            print("ini_case1() raise custom error:", e.__class__.__name__)
+            print("detail:", e)
+            pass
+
 
 if __name__ == "__main__":
     unittest.main()

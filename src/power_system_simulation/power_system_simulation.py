@@ -1,10 +1,12 @@
 """
 Assignment3 for the advanced grid analysis
 """
+
 import json
 import math
 import warnings
 from datetime import datetime
+
 import numpy as np
 import pandas as pd
 
@@ -21,57 +23,57 @@ from power_system_simulation.power_grid_calculation import PowerGridCalculation
 
 # Input data validity check
 class MoreThanOneTransformerOrSource(Exception):
-    '''
+    """
     The LV grid should have exactly one transformer, and one source.
-    '''
+    """
 
 
 class InvalidLVFeederID(Exception):
-    '''
+    """
     All IDs in the LV Feeder IDs should be valid line IDs.
-    '''
+    """
 
 
 class MismatchFromAndToNodes(Exception):
-    '''
+    """
     All the lines in the LV Feeder IDs should have the from_node the same as the to_node of the transformer.
-    '''
+    """
 
 
 class MismatchedTimetamps(Exception):
-    '''
+    """
     The timestamps should be matching between the active load profile, reactive load profile, and EV charging profile.
-    '''
+    """
 
 
 class MismatchedIDs(Exception):
-    '''
+    """
     The IDs in active load profile and reactive load profile should be matching.
-    '''
+    """
 
 
 class InvalidIDs(Exception):
-    '''
+    """
     The IDs in active load profile and reactive load profile should be valid IDs of sym_load.
-    '''
+    """
 
 
 class NotEnoughEVChargingProfiles(Exception):
-    '''
+    """
     The number of EV charging profile should be at least the same as the number of sym_load.
-    '''
+    """
 
 
 class OptimalTapPositionCriteriaError(Exception):
-    '''
+    """
     The criteria is not valid.
-    '''
+    """
 
 
 class input_data_validity_check:
-    '''
+    """
     The class used to validate all the input data
-    '''
+    """
 
     # check valid PGM input data and if has cycles and if fully connected
     def __init__(self, network_data: str):
@@ -80,9 +82,9 @@ class input_data_validity_check:
 
     # check LV grid has exactly one transformer and one source
     def check_grid(self, meta_data: str):
-        '''
+        """
         check if the original data of the grid itself is correct
-        '''
+        """
         # read lv feeder info
         with open(meta_data, "r") as file:
             self.meta = json.load(file)
@@ -101,9 +103,9 @@ class input_data_validity_check:
             raise MismatchFromAndToNodes
 
     def check_graph(self):
-        '''
+        """
         check if the graph structure of the input grid is valid
-        '''
+        """
         vertex_ids = self.grid["node"]["id"].tolist()
         edge_vertex_id_pairs = list(zip(self.grid["line"]["from_node"], self.grid["line"]["to_node"]))
         edge_vertex_id_pairs.append((self.grid["transformer"]["from_node"][0], self.grid["transformer"]["to_node"][0]))
@@ -116,9 +118,9 @@ class input_data_validity_check:
 
     # check if the timestamps and id are matching between the acitve load profile, reactive load profile and EV charging profile and if sym_load id matches
     def check_matching(self, active_load_profile: str, reactive_load_profile: str, ev_active_power_profile: str):
-        '''
-        check if the data used to update the model is correct 
-        '''
+        """
+        check if the data used to update the model is correct
+        """
         self.df1 = pd.read_parquet(active_load_profile)
         self.df2 = pd.read_parquet(reactive_load_profile)
         self.df3 = pd.read_parquet(ev_active_power_profile)
@@ -133,17 +135,17 @@ class input_data_validity_check:
 
     # check the number of EV charging profiles is at least the number of sym_load
     def check_EV_charging_profiles(self):
-        '''
-        check if ev_profile is valid 
-        '''
+        """
+        check if ev_profile is valid
+        """
         if len(self.df3.columns) < len(self.grid["sym_load"]):
             raise NotEnoughEVChargingProfiles
 
 
 class ev_penetration_level:
-    '''
+    """
     The class used to ramdon assigen the ev-penetration level
-    '''
+    """
 
     def __init__(
         self,
@@ -153,9 +155,9 @@ class ev_penetration_level:
         ev_active_power_profile: str,
         meta_data: str,
     ):
-        '''
+        """
         read from input data of the grid and ev_profile then create the graoh
-        '''
+        """
         self.pgc = PowerGridCalculation()
         self.grid = self.pgc.construct_pgm(network_data)
         self.update_data = self.pgc.creat_batch_update_dataset(active_load_profile, reactive_load_profile)
@@ -174,9 +176,9 @@ class ev_penetration_level:
         self.gp = GraphProcessor(vertex_ids, edge_ids, edge_vertex_id_pairs, edge_enabled, source_vertex_id)
 
     def calculate(self, p_level: float):
-        '''
+        """
         ramdom assign the ev_profile and do power flow analysis
-        '''
+        """
         np.random.seed(0)
         total_houses = len(self.grid["sym_load"]["id"])
         number_of_feeders = len(self.meta["lv_feeders"])
@@ -209,14 +211,14 @@ class ev_penetration_level:
 
 
 class optimal_tap_position:
-    '''
+    """
     The class used to find optimmal tap position of the tramsformer accroding to the input criteria
-    '''
+    """
 
     def __init__(self, low_voltage_network_data: str, active_load_profile: str, reactive_load_profile: str):
-        '''
+        """
         read from input data of the grid and from update_profile
-        '''
+        """
         self.power_grid_calculation = PowerGridCalculation()
         self.low_voltage_grid = self.power_grid_calculation.construct_pgm(low_voltage_network_data)
         self.load_profile_batch = self.power_grid_calculation.creat_batch_update_dataset(
@@ -303,14 +305,14 @@ class optimal_tap_position:
 
 
 class n1_calculation:
-    '''
+    """
     The class used to do N-1 calculation
-    '''
+    """
 
     def __init__(self, network_data: str, meta_data: str, active_load_profile: str, reactive_load_profile: str):
-        '''
+        """
         read from input data of the grid and from update_profile
-        '''
+        """
         with open(meta_data, "r") as file:
             self.meta = json.load(file)
         self.pgc = PowerGridCalculation()
@@ -333,9 +335,9 @@ class n1_calculation:
         # print(edge_ids)
 
     def n1_calculate(self, line_id: int):
-        '''
-        find the list of the alt line and do power flow analysisi for each one of them and return data as required 
-        '''
+        """
+        find the list of the alt line and do power flow analysisi for each one of them and return data as required
+        """
         update_line = initialize_array("update", "line", 2)
         update_line["id"] = [line_id, 0]
         update_line["from_status"] = [0, 1]

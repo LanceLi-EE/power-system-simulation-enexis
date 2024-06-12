@@ -11,41 +11,41 @@ import networkx as nx
 
 
 class IDNotFoundError(Exception):
-    '''
+    """
     edge_vertex_id_pairs should contain valid vertex ids.
     source_vertex_id should be a valid vertex id.
-    '''
+    """
 
 
 class InputLengthDoesNotMatchError(Exception):
-    '''
+    """
     edge_vertex_id_pairs should have the same length as edge_ids. (InputLengthDoesNotMatchError)
     edge_enabled should have the same length as edge_ids.
-    '''
+    """
 
 
 class IDNotUniqueError(Exception):
-    '''
+    """
     vertex_ids and edge_ids should be unique. (IDNotUniqueError)
-    '''
+    """
 
 
 class GraphNotFullyConnectedError(Exception):
-    '''
+    """
     The graph should be fully connected.
-    '''
+    """
 
 
 class GraphCycleError(Exception):
-    '''
+    """
     The graph should not contain cycles.
-    '''
+    """
 
 
 class EdgeAlreadyDisabledError(Exception):
-    '''
+    """
     The given edge_id is a disabled edge
-    '''
+    """
 
 
 class GraphProcessor:

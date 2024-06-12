@@ -25,10 +25,9 @@ class TwoProfilesDoesNotHaveMatchingTimestampsOrLoadIds(Exception):
 
 
 class PowerGridCalculation:
-    '''
+    """
     The class used to do power flow analyaisi including time series calculation
-    '''
-
+    """
 
     def __init__(self) -> None:
         """

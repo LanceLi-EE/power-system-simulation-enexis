@@ -16,8 +16,8 @@ import power_system_simulation.graph_processing as GP
 import power_system_simulation.power_grid_calculation as PGC
 from power_system_simulation.power_system_simulation import (
     ev_penetration_level,
-    n1_calculation,
     input_data_validity_check,
+    n1_calculation,
     optimal_tap_position,
 )
 
@@ -157,6 +157,7 @@ class TestMyClass(unittest.TestCase):
             print("ini_case7() raise custom error:", e.__class__.__name__)
             print("detail:", e)
             pass
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -32,17 +32,17 @@ class TestMyClass(unittest.TestCase):
         n1 = N1_calculation(path0, path1, path2, path3)
         try:
             # call the class.function, if there is an error then record it
-            #self.grid = PGC.PowerGridCalculation().construct_PGM(path0)
-            #with open(path1, 'r' ) as file:
-                #meta_data = json.load(file)
-            #ac = pd.read_parquet("tests/data/small_network/input/ev_active_power_profile.parquet")
-            #print(len(ac.columns))
-            #pss.check_grid(path1)
-            #pss.check_graph()
-            #pss.check_matching(path2, path3, path4)
-            #pss.check_EV_charging_profiles()
+            # self.grid = PGC.PowerGridCalculation().construct_PGM(path0)
+            # with open(path1, 'r' ) as file:
+            # meta_data = json.load(file)
+            # ac = pd.read_parquet("tests/data/small_network/input/ev_active_power_profile.parquet")
+            # print(len(ac.columns))
+            # pss.check_grid(path1)
+            # pss.check_graph()
+            # pss.check_matching(path2, path3, path4)
+            # pss.check_EV_charging_profiles()
             print(n1.N1(18))
-             
+
         except Exception as e:
             # if there is an error, print the information and continue to next test case
             print("ini_case1() raise custom error:", e.__class__.__name__)
@@ -54,15 +54,15 @@ class TestMyClass(unittest.TestCase):
         data_path_active_load_prof = "tests/data/small_network/input/active_power_profile.parquet"
         data_path_reactive_load_prof = "tests/data/small_network/input/reactive_power_profile.parquet"
 
-        opt_tap_pos_inst = optimal_tap_position(data_path_pow_grid_model,
-                                                data_path_active_load_prof,
-                                                data_path_reactive_load_prof)
-        
+        opt_tap_pos_inst = optimal_tap_position(
+            data_path_pow_grid_model, data_path_active_load_prof, data_path_reactive_load_prof
+        )
+
         criteria = "minimize_line_losses"
-        
+
         try:
             optimal_tap_pos = opt_tap_pos_inst.find_optimal_tap_position(criteria)
-            print("optimal tap position: " ,optimal_tap_pos)
+            print("optimal tap position: ", optimal_tap_pos)
         except Exception as exc:
             print(exc)
 
@@ -71,18 +71,17 @@ class TestMyClass(unittest.TestCase):
         data_path_active_load_prof = "tests/data/small_network/input/active_power_profile.parquet"
         data_path_reactive_load_prof = "tests/data/small_network/input/reactive_power_profile.parquet"
 
-        opt_tap_pos_inst = optimal_tap_position(data_path_pow_grid_model,
-                                                data_path_active_load_prof,
-                                                data_path_reactive_load_prof)
-        
+        opt_tap_pos_inst = optimal_tap_position(
+            data_path_pow_grid_model, data_path_active_load_prof, data_path_reactive_load_prof
+        )
+
         criteria = "minimize_voltage_deviations"
-        
+
         try:
             optimal_tap_pos = opt_tap_pos_inst.find_optimal_tap_position(criteria)
-            print("optimal tap position: " ,optimal_tap_pos)
+            print("optimal tap position: ", optimal_tap_pos)
         except Exception as exc:
             print(exc)
-
 
 
 if __name__ == "__main__":

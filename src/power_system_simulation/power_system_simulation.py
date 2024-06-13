@@ -184,8 +184,8 @@ class ev_penetration_level:
         number_of_feeders = len(self.meta["lv_feeders"])
         evs_per_feeder = math.floor(p_level * total_houses / number_of_feeders)
         ramdon_range = self.ev.shape[1]
-        ev_seq = np.arange(ramdon_range)
-        np.random.shuffle(ev_seq)
+        arr = np.arange(ramdon_range)
+        ev_seq = np.random.shuffle(arr)
         for feeder in self.meta["lv_feeders"]:
             down_stream_node = self.gp.find_downstream_vertices(feeder)
             list_load = []
@@ -195,20 +195,18 @@ class ev_penetration_level:
             if evs_per_feeder >= len(list_load):
                 update_seq = []
                 for load in list_load:
-                    ids = self.update_data['sym_load']['id'][0]
-                    update_seq.append(pd.DataFrame(self.update_data['sym_load']['p_specified'], columns=ids).columns.get_loc(load))
-                for seq in update_seq:
-                    self.update_data["sym_load"]["p_specified"][:, seq] += self.ev.iloc[:, ev_seq[0]]
-                    ev_seq = ev_seq[1:]
+                    update_seq.append(pd.DataFrame(self.update_data).columns.get_loc(load))
+                    for seq in update_seq:
+                        self.update_data["sym_load"]["p_specified"][:, seq] += self.ev.iloc[:, ev_seq[0]]
+                        ev_seq = ev_seq[1:]
             else:
                 select_load = np.random.choice(list_load, evs_per_feeder, replace=False)
                 update_seq = []
                 for load in select_load:
-                    ids = self.update_data['sym_load']['id'][0]
-                    update_seq.append(pd.DataFrame(self.update_data['sym_load']['p_specified'], columns=ids).columns.get_loc(load))
-                for seq in update_seq:
-                    self.update_data["sym_load"]["p_specified"][:, seq] += self.ev.iloc[:, ev_seq[0]]
-                    ev_seq = ev_seq[1:]
+                    update_seq.append(pd.DataFrame(self.update_data).columns.get_loc(load))
+                    for seq in update_seq:
+                        self.update_data["sym_load"]["p_specified"][:, seq] += self.ev.iloc[:, ev_seq[0]]
+                        ev_seq = ev_seq[1:]
         return self.pgc.time_series_power_flow_calculation()
 
 

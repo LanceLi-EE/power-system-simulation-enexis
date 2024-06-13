@@ -195,8 +195,10 @@ class ev_penetration_level:
             if evs_per_feeder >= len(list_load):
                 update_seq = []
                 for load in list_load:
-                    ids = self.update_data['sym_load']['id'][0]
-                    update_seq.append(pd.DataFrame(self.update_data['sym_load']['p_specified'], columns=ids).columns.get_loc(load))
+                    ids = self.update_data["sym_load"]["id"][0]
+                    update_seq.append(
+                        pd.DataFrame(self.update_data["sym_load"]["p_specified"], columns=ids).columns.get_loc(load)
+                    )
                 for seq in update_seq:
                     self.update_data["sym_load"]["p_specified"][:, seq] += self.ev.iloc[:, ev_seq[0]]
                     ev_seq = ev_seq[1:]
@@ -204,8 +206,10 @@ class ev_penetration_level:
                 select_load = np.random.choice(list_load, evs_per_feeder, replace=False)
                 update_seq = []
                 for load in select_load:
-                    ids = self.update_data['sym_load']['id'][0]
-                    update_seq.append(pd.DataFrame(self.update_data['sym_load']['p_specified'], columns=ids).columns.get_loc(load))
+                    ids = self.update_data["sym_load"]["id"][0]
+                    update_seq.append(
+                        pd.DataFrame(self.update_data["sym_load"]["p_specified"], columns=ids).columns.get_loc(load)
+                    )
                 for seq in update_seq:
                     self.update_data["sym_load"]["p_specified"][:, seq] += self.ev.iloc[:, ev_seq[0]]
                     ev_seq = ev_seq[1:]

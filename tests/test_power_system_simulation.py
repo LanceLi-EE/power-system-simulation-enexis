@@ -15,9 +15,9 @@ from power_grid_model.utils import json_deserialize, json_serialize
 import power_system_simulation.graph_processing as GP
 import power_system_simulation.power_grid_calculation as PGC
 from power_system_simulation.power_system_simulation import (
-    EV_penetration_level,
-    N1_calculation,
+    ev_penetration_level,
     input_data_validity_check,
+    n1_calculation,
     optimal_tap_position,
 )
 
@@ -35,7 +35,7 @@ class TestMyClass(unittest.TestCase):
             pss.check_grid(path1)
             pss.check_graph()
             pss.check_matching(path2, path3, path4)
-            pss.check_EV_charging_profiles()
+            pss.check_ev_charging_profiles()
         except Exception as e:
             # if there is an error, print the information and continue to next test case
             print("ini_case1() raise custom error:", e.__class__.__name__)
@@ -48,7 +48,7 @@ class TestMyClass(unittest.TestCase):
         path2 = "tests/data/small_network/input/active_power_profile.parquet"
         path3 = "tests/data/small_network/input/reactive_power_profile.parquet"
         path4 = "tests/data/small_network/input/ev_active_power_profile.parquet"
-        ev = EV_penetration_level(path0, path2, path3, path4, path1)
+        ev = ev_penetration_level(path0, path2, path3, path4, path1)
         try:
             # call the class.function, if there is an error then record it
             tables = ev.calculate(0.2)
@@ -56,7 +56,7 @@ class TestMyClass(unittest.TestCase):
             print(tables[1])
         except Exception as e:
             # if there is an error, print the information and continue to next test case
-            print("ini_case1() raise custom error:", e.__class__.__name__)
+            print("ini_case2() raise custom error:", e.__class__.__name__)
             print("detail:", e)
             pass
 
@@ -80,7 +80,7 @@ class TestMyClass(unittest.TestCase):
             print("optimal tap positionL ", optimal_tap_pos)
         except Exception as e:
             # if there is an error, print the information and continue to next test case
-            print("ini_case1() raise custom error:", e.__class__.__name__)
+            print("ini_case3() raise custom error:", e.__class__.__name__)
             print("detail:", e)
             pass
 
@@ -90,14 +90,14 @@ class TestMyClass(unittest.TestCase):
         path2 = "tests/data/small_network/input/active_power_profile.parquet"
         path3 = "tests/data/small_network/input/reactive_power_profile.parquet"
         path4 = "tests/data/small_network/input/ev_active_power_profile.parquet"
-        n1 = N1_calculation(path0, path1, path2, path3)
+        n1 = n1_calculation(path0, path1, path2, path3)
         try:
             # call the class.function, if there is an error then record it
-            print(n1.N1_calculate(18))
-            print(n1.N1_calculate(17))
+            print(n1.n1_calculate(18))
+            print(n1.n1_calculate(17))
         except Exception as e:
             # if there is an error, print the information and continue to next test case
-            print("ini_case1() raise custom error:", e.__class__.__name__)
+            print("ini_case4() raise custom error:", e.__class__.__name__)
             print("detail:", e)
             pass
 
@@ -113,10 +113,10 @@ class TestMyClass(unittest.TestCase):
             pss.check_grid(path1)
             pss.check_graph()
             pss.check_matching(path2, path3, path4)
-            pss.check_EV_charging_profiles()
+            pss.check_ev_charging_profiles()
         except Exception as e:
             # if there is an error, print the information and continue to next test case
-            print("ini_case1() raise custom error:", e.__class__.__name__)
+            print("ini_case5() raise custom error:", e.__class__.__name__)
             print("detail:", e)
             pass
 
@@ -132,10 +132,29 @@ class TestMyClass(unittest.TestCase):
             pss.check_grid(path1)
             pss.check_graph()
             pss.check_matching(path2, path3, path4)
-            pss.check_EV_charging_profiles()
+            pss.check_ev_charging_profiles()
         except Exception as e:
             # if there is an error, print the information and continue to next test case
-            print("ini_case1() raise custom error:", e.__class__.__name__)
+            print("ini_case6() raise custom error:", e.__class__.__name__)
+            print("detail:", e)
+            pass
+
+    def test_ini_case7(self):
+        path0 = "tests/data/small_network/input/input_network_data_wrong2.json"
+        path1 = "tests/data/small_network/input/meta_data.json"
+        path2 = "tests/data/small_network/input/active_power_profile.parquet"
+        path3 = "tests/data/small_network/input/reactive_power_profile.parquet"
+        path4 = "tests/data/small_network/input/ev_active_power_profile.parquet"
+        pss = input_data_validity_check(path0)
+        try:
+            # call the class.function, if there is an error then record it
+            pss.check_grid(path1)
+            pss.check_graph()
+            pss.check_matching(path2, path3, path4)
+            pss.check_ev_charging_profiles()
+        except Exception as e:
+            # if there is an error, print the information and continue to next test case
+            print("ini_case7() raise custom error:", e.__class__.__name__)
             print("detail:", e)
             pass
 

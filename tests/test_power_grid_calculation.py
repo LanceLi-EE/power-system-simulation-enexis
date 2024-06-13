@@ -26,7 +26,7 @@ class TestMyClass(unittest.TestCase):
         path2 = "tests/data/input/reactive_power_profile.parquet"
         try:
             # call the class.function, if there is an error then record it
-            PGM = pgc.construct_PGM(path0)
+            PGM = pgc.construct_pgm(path0)
             update_dataset = pgc.creat_batch_update_dataset(path1, path2)
             tables = pgc.time_series_power_flow_calculation()
             print(tables[0])

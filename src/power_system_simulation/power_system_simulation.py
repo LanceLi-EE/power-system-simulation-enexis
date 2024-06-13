@@ -1,20 +1,20 @@
+"""
+Assignment3 for the advanced grid analysis
+"""
+
 import json
 import math
 import warnings
 from datetime import datetime
 
-import matplotlib.pyplot as plt
-import networkx as nx
 import numpy as np
 import pandas as pd
-import pyarrow.parquet as pq
 
 with warnings.catch_warnings(action="ignore", category=DeprecationWarning):
     # suppress warning about pyarrow as future required dependency
     from pandas import DataFrame
 
 from power_grid_model import CalculationMethod, PowerGridModel, initialize_array
-from power_grid_model.utils import json_deserialize
 from scipy import integrate
 
 from power_system_simulation.graph_processing import GraphProcessor
@@ -23,45 +23,68 @@ from power_system_simulation.power_grid_calculation import PowerGridCalculation
 
 # Input data validity check
 class MoreThanOneTransformerOrSource(Exception):
-    pass
+    """
+    The LV grid should have exactly one transformer, and one source.
+    """
 
 
 class InvalidLVFeederID(Exception):
-    pass
+    """
+    All IDs in the LV Feeder IDs should be valid line IDs.
+    """
 
 
 class MismatchFromAndToNodes(Exception):
-    pass
+    """
+    All the lines in the LV Feeder IDs should have the from_node the same as the to_node of the transformer.
+    """
 
 
 class MismatchedTimetamps(Exception):
-    pass
+    """
+    The timestamps should be matching between the active load profile, reactive load profile, and EV charging profile.
+    """
 
 
 class MismatchedIDs(Exception):
-    pass
+    """
+    The IDs in active load profile and reactive load profile should be matching.
+    """
 
 
 class InvalidIDs(Exception):
-    pass
+    """
+    The IDs in active load profile and reactive load profile should be valid IDs of sym_load.
+    """
 
 
 class NotEnoughEVChargingProfiles(Exception):
-    pass
+    """
+    The number of EV charging profile should be at least the same as the number of sym_load.
+    """
 
 
 class OptimalTapPositionCriteriaError(Exception):
-    pass
+    """
+    The criteria is not valid.
+    """
 
 
 class input_data_validity_check:
+    """
+    The class used to validate all the input data
+    """
+
     # check valid PGM input data and if has cycles and if fully connected
     def __init__(self, network_data: str):
         self.pgc = PowerGridCalculation()
-        self.grid = self.pgc.construct_PGM(network_data)
+        self.grid = self.pgc.construct_pgm(network_data)
 
     # check LV grid has exactly one transformer and one source
     def check_grid(self, meta_data: str):
+        """
+        check if the original data of the grid itself is correct
+        """
         # read lv feeder info
         with open(meta_data, "r") as file:
             self.meta = json.load(file)
@@ -80,6 +103,9 @@ class input_data_validity_check:
             raise MismatchFromAndToNodes
 
     def check_graph(self):
+        """
+        check if the graph structure of the input grid is valid
+        """
         vertex_ids = self.grid["node"]["id"].tolist()
         edge_vertex_id_pairs = list(zip(self.grid["line"]["from_node"], self.grid["line"]["to_node"]))
         edge_vertex_id_pairs.append((self.grid["transformer"]["from_node"][0], self.grid["transformer"]["to_node"][0]))
@@ -92,6 +118,9 @@ class input_data_validity_check:
 
     # check if the timestamps and id are matching between the acitve load profile, reactive load profile and EV charging profile and if sym_load id matches
     def check_matching(self, active_load_profile: str, reactive_load_profile: str, ev_active_power_profile: str):
+        """
+        check if the data used to update the model is correct
+        """
         self.df1 = pd.read_parquet(active_load_profile)
         self.df2 = pd.read_parquet(reactive_load_profile)
         self.df3 = pd.read_parquet(ev_active_power_profile)
@@ -105,12 +134,19 @@ class input_data_validity_check:
             raise InvalidIDs
 
     # check the number of EV charging profiles is at least the number of sym_load
-    def check_EV_charging_profiles(self):
+    def check_ev_charging_profiles(self):
+        """
+        check if ev_profile is valid
+        """
         if len(self.df3.columns) < len(self.grid["sym_load"]):
             raise NotEnoughEVChargingProfiles
 
 
-class EV_penetration_level:
+class ev_penetration_level:
+    """
+    The class used to ramdon assigen the ev-penetration level
+    """
+
     def __init__(
         self,
         network_data: str,
@@ -119,8 +155,11 @@ class EV_penetration_level:
         ev_active_power_profile: str,
         meta_data: str,
     ):
+        """
+        read from input data of the grid and ev_profile then create the graoh
+        """
         self.pgc = PowerGridCalculation()
-        self.grid = self.pgc.construct_PGM(network_data)
+        self.grid = self.pgc.construct_pgm(network_data)
         self.update_data = self.pgc.creat_batch_update_dataset(active_load_profile, reactive_load_profile)
         self.ev = pd.read_parquet(ev_active_power_profile)
         with open(meta_data, "r") as file:
@@ -137,13 +176,16 @@ class EV_penetration_level:
         self.gp = GraphProcessor(vertex_ids, edge_ids, edge_vertex_id_pairs, edge_enabled, source_vertex_id)
 
     def calculate(self, p_level: float):
+        """
+        ramdom assign the ev_profile and do power flow analysis
+        """
         np.random.seed(0)
         total_houses = len(self.grid["sym_load"]["id"])
         number_of_feeders = len(self.meta["lv_feeders"])
         evs_per_feeder = math.floor(p_level * total_houses / number_of_feeders)
         ramdon_range = self.ev.shape[1]
-        arr = np.arange(ramdon_range)
-        ev_seq = np.random.shuffle(arr)
+        ev_seq = np.arange(ramdon_range)
+        np.random.shuffle(ev_seq)
         for feeder in self.meta["lv_feeders"]:
             down_stream_node = self.gp.find_downstream_vertices(feeder)
             list_load = []
@@ -153,25 +195,38 @@ class EV_penetration_level:
             if evs_per_feeder >= len(list_load):
                 update_seq = []
                 for load in list_load:
-                    update_seq.append(pd.DataFrame(self.update_data).columns.get_loc(load))
-                    for seq in update_seq:
-                        self.update_data["sym_load"]["p_specified"][:, seq] += self.ev.iloc[:, ev_seq[0]]
-                        ev_seq = ev_seq[1:]
+                    ids = self.update_data["sym_load"]["id"][0]
+                    update_seq.append(
+                        pd.DataFrame(self.update_data["sym_load"]["p_specified"], columns=ids).columns.get_loc(load)
+                    )
+                for seq in update_seq:
+                    self.update_data["sym_load"]["p_specified"][:, seq] += self.ev.iloc[:, ev_seq[0]]
+                    ev_seq = ev_seq[1:]
             else:
                 select_load = np.random.choice(list_load, evs_per_feeder, replace=False)
                 update_seq = []
                 for load in select_load:
-                    update_seq.append(pd.DataFrame(self.update_data).columns.get_loc(load))
-                    for seq in update_seq:
-                        self.update_data["sym_load"]["p_specified"][:, seq] += self.ev.iloc[:, ev_seq[0]]
-                        ev_seq = ev_seq[1:]
+                    ids = self.update_data["sym_load"]["id"][0]
+                    update_seq.append(
+                        pd.DataFrame(self.update_data["sym_load"]["p_specified"], columns=ids).columns.get_loc(load)
+                    )
+                for seq in update_seq:
+                    self.update_data["sym_load"]["p_specified"][:, seq] += self.ev.iloc[:, ev_seq[0]]
+                    ev_seq = ev_seq[1:]
         return self.pgc.time_series_power_flow_calculation()
 
 
 class optimal_tap_position:
+    """
+    The class used to find optimmal tap position of the tramsformer accroding to the input criteria
+    """
+
     def __init__(self, low_voltage_network_data: str, active_load_profile: str, reactive_load_profile: str):
+        """
+        read from input data of the grid and from update_profile
+        """
         self.power_grid_calculation = PowerGridCalculation()
-        self.low_voltage_grid = self.power_grid_calculation.construct_PGM(low_voltage_network_data)
+        self.low_voltage_grid = self.power_grid_calculation.construct_pgm(low_voltage_network_data)
         self.load_profile_batch = self.power_grid_calculation.creat_batch_update_dataset(
             active_load_profile, reactive_load_profile
         )
@@ -194,8 +249,8 @@ class optimal_tap_position:
         original_tap_pos = self.low_voltage_grid["transformer"]["tap_pos"][0]
 
         # lists to store relevant data for each tap position
-        line_losses = list()
-        voltage_deviations = list()
+        line_losses = []
+        voltage_deviations = []
 
         for tap_pos in tap_positions:
             # update tap position in power grid input data
@@ -255,12 +310,19 @@ class optimal_tap_position:
         return optimal_tap_pos
 
 
-class N1_calculation:
+class n1_calculation:
+    """
+    The class used to do N-1 calculation
+    """
+
     def __init__(self, network_data: str, meta_data: str, active_load_profile: str, reactive_load_profile: str):
+        """
+        read from input data of the grid and from update_profile
+        """
         with open(meta_data, "r") as file:
             self.meta = json.load(file)
         self.pgc = PowerGridCalculation()
-        self.grid = self.pgc.construct_PGM(network_data)
+        self.grid = self.pgc.construct_pgm(network_data)
         self.update_data = self.pgc.creat_batch_update_dataset(active_load_profile, reactive_load_profile)
         self.df1 = pd.read_parquet(active_load_profile)
         self.timestamp = self.df1.index
@@ -278,7 +340,10 @@ class N1_calculation:
         # plt.show()
         # print(edge_ids)
 
-    def N1_calculate(self, line_id: int):
+    def n1_calculate(self, line_id: int):
+        """
+        find the list of the alt line and do power flow analysisi for each one of them and return data as required
+        """
         update_line = initialize_array("update", "line", 2)
         update_line["id"] = [line_id, 0]
         update_line["from_status"] = [0, 1]

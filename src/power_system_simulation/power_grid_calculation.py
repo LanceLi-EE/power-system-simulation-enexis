@@ -25,12 +25,16 @@ class TwoProfilesDoesNotHaveMatchingTimestampsOrLoadIds(Exception):
 
 
 class PowerGridCalculation:
+    """
+    The class used to do power flow analyaisi including time series calculation
+    """
+
     def __init__(self) -> None:
         """
         Class to perform power grid calculations.
         """
 
-    def construct_PGM(self, data_path: str):
+    def construct_pgm(self, data_path: str):
         """
         Construct the Power Grid Model (PGM) from the provided JSON data.
 

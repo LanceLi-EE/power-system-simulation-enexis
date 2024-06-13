@@ -49,11 +49,12 @@ class TestMyClass(unittest.TestCase):
         path3 = "tests/data/small_network/input/reactive_power_profile.parquet"
         path4 = "tests/data/small_network/input/ev_active_power_profile.parquet"
         ev = ev_penetration_level(path0, path2, path3, path4, path1)
+        tables = ev.calculate(0.2)
+        print(tables[0])
+        print(tables[1])
         try:
             # call the class.function, if there is an error then record it
-            tables = ev.calculate(0.2)
-            print(tables[0])
-            print(tables[1])
+            pass
         except Exception as e:
             # if there is an error, print the information and continue to next test case
             print("ini_case2() raise custom error:", e.__class__.__name__)

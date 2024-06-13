@@ -21,9 +21,9 @@ class TestMyClass(unittest.TestCase):
     def test_ini_case1(self):
         pgc = PowerGridCalculation()
 
-        path0 = "tests/data/input/input_network_data.json"
-        path1 = "tests/data/input/active_power_profile.parquet"
-        path2 = "tests/data/input/reactive_power_profile.parquet"
+        path0 = "tests/data/big_network/input/input_network_data.json"
+        path1 = "tests/data/big_network/input/active_power_profile.parquet"
+        path2 = "tests/data/big_network/input/reactive_power_profile.parquet"
         try:
             # call the class.function, if there is an error then record it
             PGM = pgc.construct_pgm(path0)

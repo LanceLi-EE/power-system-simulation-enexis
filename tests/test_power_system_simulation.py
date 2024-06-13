@@ -113,7 +113,7 @@ class TestMyClass(unittest.TestCase):
             pss.check_grid(path1)
             pss.check_graph()
             pss.check_matching(path2, path3, path4)
-            pss.check_EV_charging_profiles()
+            pss.check_ev_charging_profiles()
         except Exception as e:
             # if there is an error, print the information and continue to next test case
             print("ini_case5() raise custom error:", e.__class__.__name__)

@@ -11,34 +11,46 @@ import networkx as nx
 
 
 class IDNotFoundError(Exception):
-    pass
+    """
+    edge_vertex_id_pairs should contain valid vertex ids.
+    source_vertex_id should be a valid vertex id.
+    """
 
 
 class InputLengthDoesNotMatchError(Exception):
-    pass
+    """
+    edge_vertex_id_pairs should have the same length as edge_ids. (InputLengthDoesNotMatchError)
+    edge_enabled should have the same length as edge_ids.
+    """
 
 
 class IDNotUniqueError(Exception):
-    pass
+    """
+    vertex_ids and edge_ids should be unique. (IDNotUniqueError)
+    """
 
 
 class GraphNotFullyConnectedError(Exception):
-    pass
+    """
+    The graph should be fully connected.
+    """
 
 
 class GraphCycleError(Exception):
-    pass
+    """
+    The graph should not contain cycles.
+    """
 
 
 class EdgeAlreadyDisabledError(Exception):
-    pass
+    """
+    The given edge_id is a disabled edge
+    """
 
 
 class GraphProcessor:
     """
-    General documentation of this class.
-    You need to describe the purpose of this class and the functions in it.
-    We are using an undirected graph in the processor.
+    The class used to check the structure of the grid, which is processed as graph
     """
 
     def __init__(

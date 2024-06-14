@@ -262,9 +262,9 @@ class optimal_tap_position:
 
                 # run time series power flow calculation
                 pow_flow_result = pow_grid_model.calculate_power_flow(
-                    update_data=self.load_profile_batch, 
+                    update_data=self.load_profile_batch,
                     calculation_method=CalculationMethod.newton_raphson,
-                    threading=0
+                    threading=0,
                 )
 
                 # line losses
@@ -292,9 +292,9 @@ class optimal_tap_position:
 
                 # run time series power flow calculation
                 pow_flow_result = pow_grid_model.calculate_power_flow(
-                    update_data=self.load_profile_batch, 
+                    update_data=self.load_profile_batch,
                     calculation_method=CalculationMethod.newton_raphson,
-                    threading=0
+                    threading=0,
                 )
 
                 # voltage deviations
@@ -315,7 +315,7 @@ class optimal_tap_position:
 
             min_volt_dev_idx = voltage_deviations.index(min(voltage_deviations))
             optimal_tap_pos = tap_positions[min_volt_dev_idx]
-        
+
         else:
             raise OptimalTapPositionCriteriaError("Criteria incorrect")
 

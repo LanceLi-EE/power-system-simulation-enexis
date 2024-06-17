@@ -1,5 +1,5 @@
 """
-Assignment3 for the advanced grid analysis
+Assignment 3 for the advanced grid analysis
 """
 
 import json
@@ -66,7 +66,7 @@ class NotEnoughEVChargingProfiles(Exception):
 
 class OptimalTapPositionCriteriaError(Exception):
     """
-    The criteria is not valid.
+    The criteria for the tap position is not valid.
     """
 
 
@@ -77,13 +77,40 @@ class input_data_validity_check:
 
     # check valid PGM input data and if has cycles and if fully connected
     def __init__(self, network_data: str):
+        """
+        Read the network input data and construct a power grid model using PowerGridCalculation class.
+
+        Args:
+        network_data (str): Path to the network data JSON file.
+
+        Returns:
+        None
+
+        Raises:
+        None
+        """
         self.pgc = PowerGridCalculation()
         self.grid = self.pgc.construct_pgm(network_data)
 
     # check LV grid has exactly one transformer and one source
     def check_grid(self, meta_data: str):
         """
-        check if the original data of the grid itself is correct
+        Check if the original data of the grid itself is correct:
+        1.  The LV grid should have exactly one transformer and one source.
+            Raise an error otherwise.
+        2.  Check whether lv_feeders are a subset of the set of line IDs. If not,
+            raise an error.
+        3.  Check for every lv_feeder if the from_node is the same as the to_node of the transformer. If not,
+            raise an error.
+
+        Args:
+        meta_data (str): Path to the meta data JSON file.
+
+        Returns:
+        None
+
+        Raises:
+        MoreThanOneTransformerOrSource, InvalidLVFeederID, MismatchFromAndToNodes
         """
         # read lv feeder info
         with open(meta_data, "r") as file:
@@ -104,7 +131,9 @@ class input_data_validity_check:
 
     def check_graph(self):
         """
-        check if the graph structure of the input grid is valid
+        Define input arguments for the GraphProcessor class and create a graph:
+        1.  Define the input arguments using the grid and meta data.
+        2.  Create a graph using the GraphProcessor class.
         """
         vertex_ids = self.grid["node"]["id"].tolist()
         edge_vertex_id_pairs = list(zip(self.grid["line"]["from_node"], self.grid["line"]["to_node"]))
@@ -119,7 +148,24 @@ class input_data_validity_check:
     # check if the timestamps and id are matching between the acitve load profile, reactive load profile and EV charging profile and if sym_load id matches
     def check_matching(self, active_load_profile: str, reactive_load_profile: str, ev_active_power_profile: str):
         """
-        check if the data used to update the model is correct
+        Check if the data used to update the model is correct:
+        1.  Read the parquet files containing the active load profile, reactive load profile and EV charging profile.
+        2.  Check if the timestamps are matching between the active load profile, reactive load profile, and EV charging profile.
+            Raise an error otherwise.
+        3.  Check if the IDs are matching between the active load profile and reactive load profile.
+            Raise an error otherwise.
+        4.  Check if the IDs of the symmetric load profile IDs match up with the active load profile IDs.
+            Raise an error otherwise.
+
+        Args:
+        active_load_profile (str), reactive_load_profile (str), ev_active_power_profile (str): path to the active and reactive profile parquet files.
+        ev_active_power_profile (str): path to the EV active power profile parquet file.
+
+        Returns:
+        None
+
+        Raises:
+        MissingTimetamps, MismatchedIDs, InvalidIDs
         """
         self.df1 = pd.read_parquet(active_load_profile)
         self.df2 = pd.read_parquet(reactive_load_profile)
@@ -136,7 +182,7 @@ class input_data_validity_check:
     # check the number of EV charging profiles is at least the number of sym_load
     def check_ev_charging_profiles(self):
         """
-        check if ev_profile is valid
+        Check whether there are at least enough EV charging profiles for all the symmetric loads.
         """
         if len(self.df3.columns) < len(self.grid["sym_load"]):
             raise NotEnoughEVChargingProfiles
@@ -144,7 +190,7 @@ class input_data_validity_check:
 
 class ev_penetration_level:
     """
-    The class used to ramdon assigen the ev-penetration level
+    The class used to randomly assign ev-penetration level to the symmetric loads on the grid.
     """
 
     def __init__(
@@ -156,7 +202,25 @@ class ev_penetration_level:
         meta_data: str,
     ):
         """
-        read from input data of the grid and ev_profile then create the graoh
+        Read from input data of the grid and parquet files, then create the graph:
+        1.  Define PowerGridCalculation class.
+        2.  Construct the power grid model using the network data JSON file.
+        3.  Create batch update dataset using the active and reactive load profile parquet files.
+        4.  Create ev active power profiles using the EV active power profile parquet file.
+        5.  Define the input arguments for GraphProcessor using the grid and meta data.
+        6.  Create a graph using the GraphProcessor class.
+
+        Args:
+        network_data (str): Path to the network data JSON file,
+        active_load_profile (str), reactive_load_profile (str): Path to the active and reactive load profile parquet files,
+        ev_active_power_profile (str): Path to the EV active power profile parquet file,
+        meta_data (str): Path to the meta data JSON file.
+
+        Returns:
+        None
+
+        Raises:
+        None
         """
         self.pgc = PowerGridCalculation()
         self.grid = self.pgc.construct_pgm(network_data)
@@ -177,7 +241,24 @@ class ev_penetration_level:
 
     def calculate(self, p_level: float):
         """
-        ramdom assign the ev_profile and do power flow analysis
+        Function that assigns the EV charging profiles to the symmetric loads on the grid, and performs power flow calculation:
+        1.  Determine the total number of houses and feeders on the grid, and calculate the number of EVs that should be assigned to each feeder.
+        2.  Shuffle the EV charging profiles so that they can be randomly assigned to the symmetric loads.
+        3.  For each feeder, make a list of its downstream nodes using the find_downstream_vertices method.
+        4.  To find the symmetric loads in the feeder, iterate through the symmetric loads and check if their node is in the list of downstream nodes.
+        5.  For each feeder, if:
+            - evs_per_feeder is greater than or equal to the number of sym_loads in a feeder, assign an EV charging profile to each load.
+            - If evs_per_feeder is less than the number of sym_loads in the feeder, randomly select and assign an EV charging profile to each load.
+        6.  Perform and return a time series power flow calculation using the updated data.
+
+        Args:
+        p_level (float): EV penetration level.
+
+        Returns:
+        time_series_power_flow_calculation: Time series power flow calculation results.
+
+        Raises:
+        None
         """
         np.random.seed(0)
         total_houses = len(self.grid["sym_load"]["id"])
@@ -218,12 +299,28 @@ class ev_penetration_level:
 
 class optimal_tap_position:
     """
-    The class used to find optimmal tap position of the tramsformer according to the input criteria
+    The class used to find optimmal tap position of the transformer according to the input criteria.
     """
 
     def __init__(self, low_voltage_network_data: str, active_load_profile: str, reactive_load_profile: str):
         """
-        read from input data of the grid and from update_profile
+        Read from input data of the grid and parquet files, then create the graph:
+        1.  Define PowerGridCalculation class
+        2.  Construct the power grid model using the low voltage network data JSON file.
+        3.  Create batch update dataset using the active and reactive load profile parquet files.
+        4.  Define the input arguments for GraphProcessor using the grid and meta data.
+        5.  Create a graph using the GraphProcessor class.
+
+        Args:
+        low_voltage_network_data (str): Path to the low voltage network data JSON file,
+        active_load_profile (str), reactive_load_profile (str): Path to the active and reactive load profile parquet files.
+
+        Returns:
+        None
+
+        Raises:
+        None
+
         """
         self.power_grid_calculation = PowerGridCalculation()
         self.low_voltage_grid = self.power_grid_calculation.construct_pgm(low_voltage_network_data)
@@ -238,6 +335,38 @@ class optimal_tap_position:
         one of the two optimization criteria's:
         - minimal total energy loss of all the lines and the whole time period
         - minimal (averaged accross all nodes) deviation of p.u. voltages with respect to 1 p.u.
+
+        1.  Find the minimum and maximum tap position of the transformer and create a list of tap positions in the range of min to max tap position.
+        2.  Store the original tap position.
+        3.  Make lists to store line_losses and voltage_deviations for each possible tap position.
+        4.  If the criteria is to minimize line losses, loop through each tap position and:
+            1.  Update the tap position in the power grid input data.
+            2.  Create a power grid model with the updated tap position.
+            3.  Run a time series power flow calculation.
+            4.  Calculate the line losses of each line by integration over time.
+            5.  Add up and store the total line losses in the line_losses list.
+            5.  After the loop, find the index of the tap position corresponding with the minimum line losses and store it as optimal_tap_pos.
+
+        5.  If the criteria is to minimize voltage deviations, loop through each tap position and:
+            1.  Update the tap position in the power grid input data.
+            2.  Create a power grid model with the updated tap position.
+            3.  Run a time series power flow calculation.
+            4.  For each node, find and store the maximum and minimum voltages.
+            5.  Calculate the voltage deviation for each node and store the maximum voltage deviation in the voltage_deviations list.
+            6.  After the loop, find the index of the tap position corresponding with the minimum voltage deviations and store it as optimal_tap_pos.
+
+        6.  If the criteria is neither of the two, raise an error.
+        7.  Set the tap position back to the initial value.
+        8.  Return the optimal tap position.
+
+        Args:
+        optimization_criteria (str): The optimization criteria
+
+        Returns:
+        optimal_tap_pos (int): The optimal tap position
+
+        Raises:
+        OptimalTapPositionCriteriaError
         """
 
         # find minimum and maximum tap position; create a list of tap positions in range of min to max tap position
@@ -327,12 +456,29 @@ class optimal_tap_position:
 
 class n1_calculation:
     """
-    The class used to do N-1 calculation
+    The class used to do the N-1 calculation.
     """
 
     def __init__(self, network_data: str, meta_data: str, active_load_profile: str, reactive_load_profile: str):
         """
-        read from input data of the grid and from update_profile
+        Read from input data of the grid, meta data and parquet files, then create the graph:
+        1.  Define PowerGridCalculation class
+        2.  Construct the power grid model using the low voltage network data JSON file.
+        3.  Create batch update dataset using the active and reactive load profile parquet files.
+        4.  Define the input arguments for GraphProcessor using the grid and meta data.
+        5.  Create a graph using the GraphProcessor class.
+
+        Args:
+        network_data (str): Path to the network data JSON file,
+        meta_data (str): Path to the meta data JSON file,
+        active_load_profile (str), reactive_load_profile (str): Path to the active and reactive load profile parquet files.
+
+        Returns:
+        None
+
+        Raises:
+        None
+
         """
         with open(meta_data, "r") as file:
             self.meta = json.load(file)
@@ -357,7 +503,24 @@ class n1_calculation:
 
     def n1_calculate(self, line_id: int):
         """
-        find the list of the alt line and do power flow analysisi for each one of them and return data as required
+        Find the list of the alternatives after disabling a given line to make the grid fully connected,
+        and do power flow analysis for each one of them and return data as required.
+        1.  Create an array to update line status.
+        2.  Use the find_alternative_edges method to find the alternative edge IDs to make the graph fully connected.
+        3.  Create a table to store the alternative line IDs, the line ID with the maximum loading, the maximum loading time, and the maximum loading value.
+        4.  If there are no alternative edges, return a table with NaN values.
+        5.  For each alternative edge that is found, create a new PowerGridModel, update the line status, and calculate the power flow.
+        6.  Find the relevant parameters stated in step 3, and store them in the table.
+        7.  Return the table.
+
+        Args:
+        line_id (int): The line ID to be disabled.
+
+        Returns:
+        table (DataFrame): DataFrame containing the alternative line IDs, the line ID with the maximum loading, the maximum loading time, and the maximum loading value.
+
+        Raises:
+        None
         """
         update_line = initialize_array("update", "line", 2)
         update_line["id"] = [line_id, 0]

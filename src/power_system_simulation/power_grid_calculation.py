@@ -101,7 +101,7 @@ class PowerGridCalculation:
 
         1.  Validate the input & update data.
         2.  Create a PowerGridModel instance using validated input data.
-        3.  Perform power flow calculation using the Newton-Raphson method for each timestep of the dataset, 
+        3.  Perform power flow calculation using the Newton-Raphson method for each timestep of the dataset,
             and store the results.
         4.  Create a dataframe for both the node and line results at each timestep.
         5.  Store the following results for each timestep:

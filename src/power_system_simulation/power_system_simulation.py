@@ -308,7 +308,7 @@ class optimal_tap_position:
         1.  Define PowerGridCalculation class
         2.  Construct the power grid model using the low voltage network data JSON file.
         3.  Create batch update dataset using the active and reactive load profile parquet files.
-    
+
 
         Args:
         low_voltage_network_data (str): Path to the low voltage network data JSON file,

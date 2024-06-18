@@ -1,5 +1,5 @@
 """
-Assignment2
+Assignment 2: Power Grid Calculation
 """
 
 import warnings
@@ -26,12 +26,12 @@ class TwoProfilesDoesNotHaveMatchingTimestampsOrLoadIds(Exception):
 
 class PowerGridCalculation:
     """
-    The class used to do power flow analyaisi including time series calculation
+    Class to perform power grid calculations.
     """
 
     def __init__(self) -> None:
         """
-        Class to perform power grid calculations.
+        Initialize the PowerGridCalculation class.
         """
 
     def construct_pgm(self, data_path: str):
@@ -54,8 +54,15 @@ class PowerGridCalculation:
 
     def creat_batch_update_dataset(self, data_path1: str, data_path2: str):
         """
-        Create a PGM batch update dataset frmo the active and reactive load profiles.
-        Raise error if timestamps and Load IDs don't match.
+        1.  Create a PGM batch update dataset from the parquet files containing the active and reactive load profiles.
+        2.  Raise error if timestamps and Load IDs don't match between active and reactive power load profiles.
+        3.  Store the timestamps from the load profiles.
+        4.  Create the format of load profile data for batch calculation.
+        5.  Assign the attributes for the batch calculation:
+            - Load IDs
+            - Active power load
+            - Reactive power load
+        6.  Store and return the batch update dataset.
 
         Args:
         data_path1 (str): Path to the active power load profile parquet file.
@@ -65,7 +72,7 @@ class PowerGridCalculation:
         dict: Dictionary containing the batch update dataset.
 
         Raises:
-        TwoProfilesDoesNotHaveMatchingTimestampsOrLoadIds: If timestamps and Load IDs don't match.
+        TwoProfilesDoesNotHaveMatchingTimestampsOrLoadIds.
         """
         # read from parquet
         df_load_profile1 = pd.read_parquet(data_path1)
@@ -90,14 +97,17 @@ class PowerGridCalculation:
 
     def time_series_power_flow_calculation(self):
         """
-        Calculate time series power flow calculation:
-        1. Validate the input & update data.
-        2. Create a PowerGridModel instance using validated input data.
-        3. Perform power flow calculation using the Newton-Raphson method for each timestep of the dataset.
-        4. Record node and line results for each timestep:
+        Perform time series power flow calculation for every timestep in the dataset.
+
+        1.  Validate the input & update data.
+        2.  Create a PowerGridModel instance using validated input data.
+        3.  Perform power flow calculation using the Newton-Raphson method for each timestep of the dataset,
+            and store the results.
+        4.  Create a dataframe for both the node and line results at each timestep.
+        5.  Store the following results for each timestep:
             - Node results: Maximum and minimum voltage magnitudes and corresponding node IDs.
             - Line results: Maximum and minimum loading and corresponding timestamps, and energy loss.
-        5. Return results in a list of 2 tables: Node results and Line results.
+        6.  Return results in a list of 2 tables: Node results and Line results.
 
         Args:
         None

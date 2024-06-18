@@ -294,6 +294,7 @@ class ev_penetration_level:
                 for seq in update_seq:
                     self.update_data["sym_load"]["p_specified"][:, seq] += self.ev.iloc[:, ev_seq[0]]
                     ev_seq = ev_seq[1:]
+        self.pgc.set_update_data(self.update_data)
         return self.pgc.time_series_power_flow_calculation()
 
 

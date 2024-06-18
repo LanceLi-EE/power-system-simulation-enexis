@@ -176,7 +176,7 @@ class PowerGridCalculation:
         # return
         tables = [table1, table2]
         return tables
-        
+
     def set_update_data(self, update_data):
         """
         Update the internal update_data dictionary.
